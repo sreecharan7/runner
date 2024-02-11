@@ -1,0 +1,153 @@
+#!/usr/bin/bash
+
+detectOs(){
+    linuxDistro=$(cat /etc/os-release | grep -E '^ID_LIKE=' | 
+    cut -d '=' -f2 | tr -d '"' | cut -d " " -f2);
+    case  "${linuxDistro}" in
+        "debian") echo "1";
+            ;;
+        "fedora") echo "2";
+            ;;
+        *) echo "*";
+            ;;
+    esac;
+}
+
+installCommand(){
+    type=$(detectOs);
+    case ${type} in 
+        1) echo "sudo apt install";
+            ;;
+        2) echo "yum install";
+            ;;
+        *) echo "error--command"; #generating the error 
+            ;;                    #command this will help us in the next comand 
+    esac
+}
+
+
+installLanguage(){
+    echo "installing ${1}  in progess ....."; #1 is program language name
+    installCommand="$(installCommand) ${1} -y";
+    sleep 3;
+    ${installCommand};
+
+    if [[ 0 -eq $? ]];then
+        echo "${1} is installed sucessfully"
+    else
+        echo "something went wrong while installing ..."; 
+        echo "maybe os is not suppoty for install";
+        echo "${1} may not be found";
+        exit;
+    fi
+}
+
+
+versionCheckerInstaller(){
+    ${1} --version 1>/dev/null 2>&1; # 1 is language name
+    if [[ 0 -ne ${?} ]]; then
+        echo "${1} is not found";
+        installLanguage "${1}";
+    fi
+}
+
+
+fileOutput(){
+    filepath=${1};
+    filename=${2};
+    # echo "$(echo ${filepath}|awk 'BEGIN{FS=OFS="/"} {NF--; print}')$(
+    #             echo ${filename} | cut -d '.' -f1)${3}"; #output extension
+    echo "$(echo "${filepath:0:-${#filename}}")$(
+                echo ${filename} | cut -d '.' -f1)${3}"; #output extension
+}
+
+checkerAndRunnerJava(){
+    java --version 1>/dev/null 2>&1;
+    if [[ 0 -ne ${?} ]];then
+        echo "java not found";
+        installLanguage "default-jdk";
+    fi
+    #1 is file path 2 indicates the filename
+    path=${1:0:-${#2}};
+    if [[ -z ${path} ]];then
+        path="./"
+    fi
+    javac -d ${path} ${1} ;
+    if [[ 0 -eq ${?} ]];then
+        cd ${path};
+        fileOutput=$(ls -t *.class  | head -n 1);
+        c=".class";
+        fileOutput="${fileOutput:0:-${#c}}";
+        java ${fileOutput};
+    fi
+}
+
+runCCpp(){
+    filepath=${1};  #2 indicates the filename
+    fileOutput=$(fileOutput ${filepath} ${2} ".out");
+    ${3} ${filepath} -o ${fileOutput} ; #3 indicates the command
+    if [[ 0 -eq ${?} ]];then
+        ./${fileOutput}; 
+    fi
+}
+
+runNasm(){
+    filepath=${1};
+    fileOutput=$(fileOutput ${filepath} ${2} ".o");  #2 indicates the filename 
+    #this will just .o file 
+    nasm -f elf -o ${fileOutput} ${filepath};
+    if [[ 0 -eq ${?} ]];then
+        fileOutput2=$(fileOutput ${filepath} ${2} ".out"); #it contains exeutable file
+        ld -m elf_i386 -o ${fileOutput2} ${fileOutput};
+        if [[ 0 -eq ${?} ]];then
+            ./${fileOutput2}; 
+        fi
+    fi
+    
+}
+
+
+detectLanguage(){
+    # 1 contins the filepath
+    filename=$(echo ${1} | awk -F '[/]' '{print $NF}');
+    filetype=$(echo ${filename} | cut -d '.' -f2);
+
+    case "${filetype}" in
+        "c")  versionCheckerInstaller "gcc";
+            runCCpp ${1} ${filename} "gcc";
+            ;;
+        "c++"|"cpp") versionCheckerInstaller "g++";
+            runCCpp ${1} ${filename} "g++";
+            ;;
+        "py") versionCheckerInstaller "python3";
+            python3 ${1};
+            ;;
+        "asm") versionCheckerInstaller "nasm"
+            runNasm ${1} ${filename};
+            ;;
+        "java")  checkerAndRunnerJava ${1} ${filename};
+            ;;
+        "js") versionCheckerInstaller "nodejs"
+            nodejs ${1};
+            ;;
+        "*") echo "language is not supported";
+            ;;
+    esac
+}
+
+
+
+
+filepath=${1};
+
+if [[ -z ${filepath} ]];then
+    echo "Please ,provide the filename/filepath";
+    exit;
+fi
+
+if [[ ! -e ${filepath} ]];then
+    echo "file doesnot exist at that location";
+    exit;
+fi
+
+detectLanguage ${filepath};
