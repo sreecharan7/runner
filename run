@@ -87,6 +87,7 @@ checkerAndRunnerJava(){
         c=".class";
         fileOutput="${fileOutput:0:-${#c}}";
         java ${fileOutput};
+        deleteFile "${fileOutput}.class";
     fi
 }
 
@@ -154,14 +155,12 @@ usage(){
     echo -e "\033[0m";
 }
 
-
-filepath=${@: -1};
-
-if [[ -z ${filepath} ]];then
+if [[ -z ${@} ]];then
     echo -e "Please ,provide the \033[0;31mfilename/filepath\033[0m";
     exit 1;
 fi
 
+filepath=${@: -1};
 
 if [[ "${1}" == "--version" ]];then
     echo -e "version is 0.5.2";
