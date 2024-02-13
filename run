@@ -27,7 +27,8 @@ installCommand(){
 
 
 installLanguage(){
-    echo "installing ${1}  in progess ....."; #1 is program language name
+    #1 is program language name
+    echo -e "\033[0;32minstalling ${1}  in progess .....\033[0m"; 
     installCommand="$(installCommand) ${1} -y";
     sleep 3;
     ${installCommand};
@@ -35,10 +36,10 @@ installLanguage(){
     if [[ 0 -eq $? ]];then
         echo "${1} is installed sucessfully"
     else
-        echo "something went wrong while installing ..."; 
+        echo -e "\033[0;33msomething went wrong while installing ..."; 
         echo "maybe os is not suppoty for install";
-        echo "${1} may not be found";
-        exit;
+        echo -e "${1} may not be found \033[0m";
+        exit 3;
     fi
 }
 
@@ -55,10 +56,17 @@ versionCheckerInstaller(){
 fileOutput(){
     filepath=${1};
     filename=${2};
-    # echo "$(echo ${filepath}|awk 'BEGIN{FS=OFS="/"} {NF--; print}')$(
-    #             echo ${filename} | cut -d '.' -f1)${3}"; #output extension
     echo "$(echo "${filepath:0:-${#filename}}")$(
                 echo ${filename} | cut -d '.' -f1)${3}"; #output extension
+}
+
+deleteFile(){
+    if [[ "${deleteExecutable}" == "true" ]];then
+        for file in  ${@}
+        do
+            rm ${file} ;
+        done
+    fi
 }
 
 checkerAndRunnerJava(){
@@ -87,7 +95,8 @@ runCCpp(){
     fileOutput=$(fileOutput ${filepath} ${2} ".out");
     ${3} ${filepath} -o ${fileOutput} ; #3 indicates the command
     if [[ 0 -eq ${?} ]];then
-        ./${fileOutput}; 
+        ./${fileOutput};
+        deleteFile ${fileOutput};
     fi
 }
 
@@ -101,9 +110,9 @@ runNasm(){
         ld -m elf_i386 -o ${fileOutput2} ${fileOutput};
         if [[ 0 -eq ${?} ]];then
             ./${fileOutput2}; 
+            deleteFile ${fileOutput} ${fileOutput2};
         fi
-    fi
-    
+    fi   
 }
 
 
@@ -130,24 +139,56 @@ detectLanguage(){
         "js") versionCheckerInstaller "nodejs"
             nodejs ${1};
             ;;
-        "*") echo "language is not supported";
+        *) echo -e "\033[0;31mlanguage is not supported\033[0m";
             ;;
     esac
 }
 
+usage(){
+    echo -e "\033[0;32mThis is a code runner command\033[0m";
+    echo -e "supported languages is asm/c/cpp/java/js/py";
+    echo -e "\033[0;33mto use the command run";
+    echo -e "\t <filename> dectects file and run";
+    echo -e "\t -i <language name> installs or upgrade language";
+    echo -e "\t -d <filename> deletes the executable code and keep the code";
+    echo -e "\033[0m";
+}
 
 
-
-filepath=${1};
+filepath=${@: -1};
 
 if [[ -z ${filepath} ]];then
-    echo "Please ,provide the filename/filepath";
+    echo -e "Please ,provide the \033[0;31mfilename/filepath\033[0m";
+    exit 1;
+fi
+
+
+if [[ "${1}" == "--version" ]];then
+    echo -e "version is 0.5.2";
     exit;
 fi
 
-if [[ ! -e ${filepath} ]];then
-    echo "file doesnot exist at that location";
+if [[ "${1}" == "--help" ]];then
+    usage ;
     exit;
 fi
+
+while getopts ":di:" opt; do
+    case ${opt} in
+        d ) deleteExecutable="true";;
+        i ) installLanguage "$OPTARG";
+            exit; ;;
+        \? ) echo "Invalid option: $OPTARG" 1>&2; exit 4;;
+        : ) echo "Option -$OPTARG requires an argument." 1>&2; exit 4;;
+    esac
+done
+
+
+if [[ ! -e ${filepath} ]];then
+    echo -e "\033[0;31mfile doesnot exist at that location\033[0m";
+    exit 2;
+fi
+
+
 
 detectLanguage ${filepath};
