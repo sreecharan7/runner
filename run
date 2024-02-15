@@ -146,24 +146,28 @@ detectLanguage(){
 }
 
 usage(){
-    echo -e "\033[0;32mThis is a code runner command\033[0m";
-    echo -e "supported languages is asm/c/cpp/java/js/py";
-    echo -e "\033[0;33mto use the command run";
-    echo -e "\t <filename> dectects file and run";
-    echo -e "\t -i <language name> installs or upgrade language";
-    echo -e "\t -d <filename> deletes the executable code and keep the code";
-    echo -e "\033[0m";
+    BLUE='\033[0;34m'
+    YELLOW='\033[0;33m'
+    NC='\033[0m' # No Color
+
+    printf "${BLUE}This is a code runner command${NC}\n"
+    printf "Supported languages: asm/c/cpp/java/js/py\n"
+    printf "${YELLOW}To use the command:\n"
+    printf "\t<filename> - Detects file type and runs\n"
+    printf "\t-i <language name> - Installs or upgrades language\n"
+    printf "\t-d <filename> - Deletes the executable code and keeps the source\n${NC}"
+
 }
 
 if [[ -z ${@} ]];then
-    echo -e "Please ,provide the \033[0;31mfilename/filepath\033[0m";
+    echo -e "Please provide the \033[0;31mfilename/filepath\033[0m.";
     exit 1;
 fi
 
 filepath=${@: -1};
 
 if [[ "${1}" == "--version" ]];then
-    echo -e "version is 0.5.2";
+    echo -e "version is 0.5.3";
     exit;
 fi
 
@@ -184,7 +188,7 @@ done
 
 
 if [[ ! -e ${filepath} ]];then
-    echo -e "\033[0;31mfile doesnot exist at that location\033[0m";
+    echo -e "\033[0;31mFile does not exist at the specified location: $filepath\033[0m";
     exit 2;
 fi
 
