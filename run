@@ -1,197 +1,194 @@
-#!/usr/bin/bash
+#!/bin/bash
 
-detectOs(){
-    linuxDistro=$(cat /etc/os-release | grep -E '^ID_LIKE=' | 
-    cut -d '=' -f2 | tr -d '"' | cut -d " " -f2);
-    case  "${linuxDistro}" in
-        "debian") echo "1";
-            ;;
-        "fedora") echo "2";
-            ;;
-        *) echo "*";
-            ;;
-    esac;
-}
+install_packages() {
+    local package_name="$1"
+    local type="${2:-1}"  # Setting a default value if $2 is not provided
+    local pm=''  # Package manager
+    local epm=''  # Extra pm
 
-installCommand(){
-    type=$(detectOs);
-    case ${type} in 
-        1) echo "sudo apt install";
+    case "$type" in
+        1) pm='apt-get'; epm='install' ;;
+        2) pm='yum'; epm='install' ;;
+        3) pm='pacman'; epm='-S' ;;
+        *)
+            echo "Package manager not found. Please install $package_name manually."
+            exit 1
             ;;
-        2) echo "yum install";
-            ;;
-        *) echo "error--command"; #generating the error 
-            ;;                    #command this will help us in the next comand 
     esac
-}
 
+    echo "$package_name is getting installed with $pm..."
+    sleep 2
 
-installLanguage(){
-    #1 is program language name
-    echo -e "\033[0;32minstalling ${1}  in progess .....\033[0m"; 
-    installCommand="$(installCommand) ${1} -y";
-    sleep 3;
-    ${installCommand};
-
-    if [[ 0 -eq $? ]];then
-        echo "${1} is installed sucessfully"
+    if [ -x "$(command -v "$pm")" ]; then
+        sudo "$pm" "$epm" -y "$package_name" &&
+        echo "$1 installed successfully using $pm" ||
+        {
+            ((type++))
+            install_packages "$1" "$type"
+        }
     else
-        echo -e "\033[0;33msomething went wrong while installing ..."; 
-        echo "maybe os is not suppoty for install";
-        echo -e "${1} may not be found \033[0m";
-        exit 3;
+        ((type++))
+        install_packages "$1" "$type"
     fi
 }
 
 
-versionCheckerInstaller(){
-    ${1} --version 1>/dev/null 2>&1; # 1 is language name
-    if [[ 0 -ne ${?} ]]; then
-        echo "${1} is not found";
-        installLanguage "${1}";
-    fi
-}
-
-
-fileOutput(){
-    filepath=${1};
-    filename=${2};
-    echo "$(echo "${filepath:0:-${#filename}}")$(
-                echo ${filename} | cut -d '.' -f1)${3}"; #output extension
-}
-
-deleteFile(){
+deleteFile() {
+    local file
     if [[ "${deleteExecutable}" == "true" ]];then
-        for file in  ${@}
-        do
-            rm ${file} ;
+        for file in "$@"; do
+            rm "$file"
         done
     fi
 }
 
-checkerAndRunnerJava(){
-    java --version 1>/dev/null 2>&1;
-    if [[ 0 -ne ${?} ]];then
-        echo "java not found";
-        installLanguage "default-jdk";
-    fi
-    #1 is file path 2 indicates the filename
-    path=${1:0:-${#2}};
-    if [[ -z ${path} ]];then
-        path="./"
-    fi
-    javac -d ${path} ${1} ;
-    if [[ 0 -eq ${?} ]];then
-        cd ${path};
-        fileOutput=$(ls -t *.class  | head -n 1);
-        c=".class";
-        fileOutput="${fileOutput:0:-${#c}}";
-        java ${fileOutput};
-        deleteFile "${fileOutput}.class";
-    fi
-}
+execute_code() {
+    local file="$1"
+    local extension="${file##*.}"
+    local fwe="${file%.*}"  # filename without extension
 
-runCCpp(){
-    filepath=${1};  #2 indicates the filename
-    fileOutput=$(fileOutput ${filepath} ${2} ".out");
-    ${3} ${filepath} -o ${fileOutput} ; #3 indicates the command
-    if [[ 0 -eq ${?} ]];then
-        ./${fileOutput};
-        deleteFile ${fileOutput};
-    fi
-}
-
-runNasm(){
-    filepath=${1};
-    fileOutput=$(fileOutput ${filepath} ${2} ".o");  #2 indicates the filename 
-    #this will just .o file 
-    nasm -f elf -o ${fileOutput} ${filepath};
-    if [[ 0 -eq ${?} ]];then
-        fileOutput2=$(fileOutput ${filepath} ${2} ".out"); #it contains exeutable file
-        ld -m elf_i386 -o ${fileOutput2} ${fileOutput};
-        if [[ 0 -eq ${?} ]];then
-            ./${fileOutput2}; 
-            deleteFile ${fileOutput} ${fileOutput2};
-        fi
-    fi   
-}
-
-
-detectLanguage(){
-    # 1 contins the filepath
-    filename=$(echo ${1} | awk -F '[/]' '{print $NF}');
-    filetype=$(echo ${filename} | cut -d '.' -f2);
-
-    case "${filetype}" in
-        "c")  versionCheckerInstaller "gcc";
-            runCCpp ${1} ${filename} "gcc";
+    case "$extension" in
+        "py")
+            python3 "$file"
             ;;
-        "c++"|"cpp") versionCheckerInstaller "g++";
-            runCCpp ${1} ${filename} "g++";
+        "java")
+            javac "$file" && {
+                cpf=$(java "$file" 2>&1 | awk '{print $NF}')
+                java "${cpf}"
+                } && {
+                    deleteFile "${cpf}.class"
+                }
             ;;
-        "py") versionCheckerInstaller "python3";
-            python3 ${1};
+        "js")
+            node "$file"
             ;;
-        "asm") versionCheckerInstaller "nasm"
-            runNasm ${1} ${filename};
+        "cpp" | "cc" | "c" | "c++")
+            g++ "$file" -o "${fwe}.out" && "./${fwe}.out" && {
+                deleteFile "${fwe}.out"
+            }
             ;;
-        "java")  checkerAndRunnerJava ${1} ${filename};
+        "class")
+            java "$fwe"
             ;;
-        "js") versionCheckerInstaller "nodejs"
-            nodejs ${1};
+        "asm")
+            nasm -f elf -o "${fwe}.o" "$file" && {
+                ld -m elf_i386 -o "${fwe}.out" "${fwe}.o"
+            } && "./${fwe}.out" && {
+                deleteFile "${fwe}.out" "${fwe}.o"
+            }
             ;;
-        *) echo -e "\033[0;31mlanguage is not supported\033[0m";
+        "sh")
+            bash "$file"
+            ;;
+        *)
+            echo "Unsupported file extension: $extension"
+            exit 1
             ;;
     esac
 }
 
-usage(){
-    BLUE='\033[0;34m'
-    YELLOW='\033[0;33m'
-    NC='\033[0m' # No Color
+main() {
+    local file="$1"
 
-    printf "${BLUE}This is a code runner command${NC}\n"
-    printf "Supported languages: asm/c/cpp/java/js/py\n"
-    printf "${YELLOW}To use the command:\n"
-    printf "\t<filename> - Detects file type and runs\n"
-    printf "\t-i <language name> - Installs or upgrades language\n"
-    printf "\t-d <filename> - Deletes the executable code and keeps the source\n${NC}"
-
+    case "$file" in
+        *.py)
+            execute_code "$file"
+            ;;
+        *.java | *.class)
+            if ! command -v java &> /dev/null; then
+                install_packages "openjdk"
+            fi
+            execute_code "$file"
+            ;;
+        *.cpp | *.cc | *.c | *.c++)
+            if ! command -v g++ &> /dev/null; then
+                install_packages "g++"
+            fi
+            execute_code "$file"
+            ;;
+        *.js)
+            if ! command -v nodejs &> /dev/null; then
+                install_packages "nodejs"
+            fi
+            execute_code "$file"
+            ;;
+        *.asm)
+            if ! command -v nasm &> /dev/null; then
+                install_packages "nasm"
+            fi
+            execute_code "$file"
+            ;;
+        *.sh)
+            execute_code "$file"
+            ;;
+        *)
+            echo "Error: Unsupported file type: $file"
+            ;;
+    esac
 }
 
-if [[ -z ${@} ]];then
-    echo -e "Please provide the \033[0;31mfilename/filepath\033[0m.";
-    exit 1;
+if [[ "$1" == "--version" ]]; then
+    echo -e "version is 0.6.0"
+    exit
 fi
 
-filepath=${@: -1};
+usage() {
+       cat << EOF
+This is a code runner command.
+Supported languages: asm, c, cpp, java, py, node.js, sh.
+Usage:
+    <filename> - Detects file type and runs.
+    -i <packages> - Installs or upgrades packages.
+    -d  - Deletes the executable code and keeps the source.
+    -m  - Uses grep to find pattern.
+    -c  - Will provide comments while running multiple files used when -m is used 
+Examples:
+    run myfile.cpp           # Run a C++ file.
+    run -i python            # Install or upgrade python
+    run -d myfile.c          # Delete the executable of a C file.
+    run -m "[1-9].c$"        # Runs all numbered c files eg:-1.c,12.c
+    run -m .                 # Runs all files in that dictionary that are supported
+EOF
+}
 
-if [[ "${1}" == "--version" ]];then
-    echo -e "version is 0.5.3";
-    exit;
+if [[ "$1" == "--help" ]]; then
+    usage
+    exit
 fi
 
-if [[ "${1}" == "--help" ]];then
-    usage ;
-    exit;
-fi
+deleteExecutable="false"
+multipleFiles="false" #run multiple files
+comment="main" #comments while executing multiple files
 
-while getopts ":di:" opt; do
+while getopts ":dmci:" opt; do
     case ${opt} in
-        d ) deleteExecutable="true";;
-        i ) installLanguage "$OPTARG";
-            exit; ;;
-        \? ) echo "Invalid option: $OPTARG" 1>&2; exit 4;;
-        : ) echo "Option -$OPTARG requires an argument." 1>&2; exit 4;;
+        d ) deleteExecutable="true" ;;
+        i ) install_packages "$OPTARG"
+            exit ;;
+        m ) multipleFiles="true" ;;
+        c ) comment="comment";;
+        \? ) echo "Invalid option: $OPTARG" 1>&2; exit 4 ;;
+        : ) echo "Option -$OPTARG requires an argument." 1>&2; exit 4 ;;
     esac
 done
 
+directory=$(dirname "${@: -1}")
+cd "$directory" || exit
+file=$(basename "${@: -1}")
 
-if [[ ! -e ${filepath} ]];then
-    echo -e "\033[0;31mFile does not exist at the specified location: $filepath\033[0m";
-    exit 2;
+comment(){
+    echo -e "\nrunning $1 ...\n";
+    main $1;
+    echo -e "\nexecuted $1 ..."
+}
+
+if [ ! -f "$file" ]; then
+    if [ "${multipleFiles}" == "true" ]; then
+        for f in  $(ls -p | grep -v / |  
+            grep -E "${file}" | grep -v -E '\.out$|\.o$');do
+            ${comment} $f;
+        done
+    else echo "file not found: $file";
+    fi
+else main "$file"
 fi
-
-
-
-detectLanguage ${filepath};
