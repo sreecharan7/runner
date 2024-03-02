@@ -12,7 +12,7 @@ install_packages() {
         3) pm='pacman'; epm='-S' ;;
         *)
             echo "Package manager not found. Please install $package_name manually."
-            exit 1
+            exit 2
             ;;
     esac
 
@@ -128,7 +128,7 @@ main() {
 }
 
 if [[ "$1" == "--version" ]]; then
-    echo -e "version is 0.6.0"
+    echo -e "version is 0.6.1"
     exit
 fi
 
@@ -167,8 +167,8 @@ while getopts ":dmci:" opt; do
             exit ;;
         m ) multipleFiles="true" ;;
         c ) comment="comment";;
-        \? ) echo "Invalid option: $OPTARG" 1>&2; exit 4 ;;
-        : ) echo "Option -$OPTARG requires an argument." 1>&2; exit 4 ;;
+        \? ) echo "Invalid option: $OPTARG" 1>&2; exit 3 ;;
+        : ) echo "Option -$OPTARG requires an argument." 1>&2; exit 3 ;;
     esac
 done
 
@@ -188,7 +188,7 @@ if [ ! -f "$file" ]; then
             grep -E "${file}" | grep -v -E '\.out$|\.o$');do
             ${comment} $f;
         done
-    else echo "file not found: $file";
+    else echo "file not found: $file";exit 1;
     fi
 else main "$file"
 fi
