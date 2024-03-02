@@ -128,7 +128,7 @@ main() {
 }
 
 if [[ "$1" == "--version" ]]; then
-    echo -e "version is 0.6.1"
+    echo -e "version is 0.6.2"
     exit
 fi
 
@@ -172,22 +172,30 @@ while getopts ":dmci:" opt; do
     esac
 done
 
+if [[ -z ${@} ]];then
+    echo "Please ,provide the filename/filepath"/pattren;
+    exit 4;
+fi
+
 directory=$(dirname "${@: -1}")
 cd "$directory" || exit
 file=$(basename "${@: -1}")
 
 comment(){
     echo -e "\nrunning $1 ...\n";
-    main $1;
+    main "$1";
     echo -e "\nexecuted $1 ..."
 }
 
 if [ ! -f "$file" ]; then
     if [ "${multipleFiles}" == "true" ]; then
+        OLD_IFS=$IFS
+        IFS=$'\n'
         for f in  $(ls -p | grep -v / |  
             grep -E "${file}" | grep -v -E '\.out$|\.o$');do
-            ${comment} $f;
+            ${comment} "$f";
         done
+        IFS=$OLD_IFS
     else echo "file not found: $file";exit 1;
     fi
 else main "$file"
