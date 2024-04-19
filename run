@@ -126,7 +126,7 @@ main() {
             ;;
     esac
 }
-current_commit="0.6.3"
+current_commit="0.6.4"
 
 if [[ "$1" == "--version" ]]; then
     echo -e "version is ${current_commit}"
@@ -159,6 +159,9 @@ update_run(){
     # Get the latest commit information from GitHub API
     latest_commit=$(curl -sSL "https://api.github.com/repos/$owner/$repo/commits/main")
     # Parse the latest commit number using jq
+    if ! command -v jq &> /dev/null; then
+        install_packages "jq"
+    fi
     latest_commit_number=$(echo "$latest_commit" | jq -r '.commit.message')
     # Compare commit numbers
     if [[ "$latest_commit_number" != "$current_commit" ]]; then
@@ -167,8 +170,11 @@ update_run(){
         raw_url="https://raw.githubusercontent.com/$owner/$repo/main/$file_path"
 
         cd '/bin';
-        curl -sSL -o "./$(basename "$file_path")" "$raw_url"
-        chmod +x "${file_path}"
+        if ! command -v curl &> /dev/null; then
+            install_packages "curl"
+        fi
+        sudo curl -sSL -o "./$(basename "$file_path")" "$raw_url"
+        sudo chmod +x "${file_path}"
 
         echo "File downloaded to: $(basename "$file_path")"
         echo "updated sucessfully";
