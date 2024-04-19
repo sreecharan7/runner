@@ -126,9 +126,10 @@ main() {
             ;;
     esac
 }
+current_commit="0.6.3"
 
 if [[ "$1" == "--version" ]]; then
-    echo -e "version is 0.6.2"
+    echo -e "version is ${current_commit}"
     exit
 fi
 
@@ -150,22 +151,66 @@ Examples:
     run -m .                 # Runs all files in that dictionary that are supported
 EOF
 }
+update_run(){
+    # GitHub repository owner and name
+    owner="sreecharan7"
+    repo="runner"
+    file_path="run"
+    # Get the latest commit information from GitHub API
+    latest_commit=$(curl -sSL "https://api.github.com/repos/$owner/$repo/commits/main")
+    # Parse the latest commit number using jq
+    latest_commit_number=$(echo "$latest_commit" | jq -r '.commit.message')
+    # Compare commit numbers
+    if [[ "$latest_commit_number" != "$current_commit" ]]; then
+        echo "A new version is available. Cloning the repository..."
+
+        raw_url="https://raw.githubusercontent.com/$owner/$repo/main/$file_path"
+
+        cd '/bin';
+        curl -sSL -o "./$(basename "$file_path")" "$raw_url"
+        chmod +x "${file_path}"
+
+        echo "File downloaded to: $(basename "$file_path")"
+        echo "updated sucessfully";
+    else
+        echo "You have the latest version."
+    fi
+}
+
+
 
 if [[ "$1" == "--help" ]]; then
     usage
     exit
 fi
 
+if [[ "$1" == "--update" ]]; then
+    update_run
+    exit
+fi
+
+latest_file_run() {
+    latest_edited=$(ls -lt |  grep -v -E '\.out$|\.o$'| head -2 | tail -1 | awk '{print $NF}');
+    if [ -z "$latest_edited" ]; then
+        echo "no latest file found"
+        exit 5;
+    else
+        main "${latest_edited}"
+    fi
+    exit
+}
+
 deleteExecutable="false"
 multipleFiles="false" #run multiple files
 comment="main" #comments while executing multiple files
 
-while getopts ":dmci:" opt; do
+while getopts ":dmtci:" opt; do
     case ${opt} in
         d ) deleteExecutable="true" ;;
         i ) install_packages "$OPTARG"
             exit ;;
         m ) multipleFiles="true" ;;
+        t )latest_file_run  ;;
         c ) comment="comment";;
         \? ) echo "Invalid option: $OPTARG" 1>&2; exit 3 ;;
         : ) echo "Option -$OPTARG requires an argument." 1>&2; exit 3 ;;
