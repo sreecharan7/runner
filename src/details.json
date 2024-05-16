@@ -1,6 +1,6 @@
 {
-    "version":"0.7.0",
-    "install-commands":[
+    "version":"0.5.9",
+    "installCommands":[
         "git clone https://github.com/sreecharan7/runner",
         "cd runner",
         "sudo install.sh"
