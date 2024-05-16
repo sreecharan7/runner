@@ -1,210 +1,64 @@
 #!/bin/bash
+src="/usr/local/src/run"
 
-install_packages() {
-    local package_name="$1"
-    local type="${2:-1}"  # Setting a default value if $2 is not provided
-    local pm=''  # Package manager
-    local epm=''  # Extra pm
-
-    case "$type" in
-        1) pm='apt-get'; epm='install' ;;
-        2) pm='yum'; epm='install' ;;
-        3) pm='pacman'; epm='-S' ;;
-        *)
-            echo "Package manager not found. Please install $package_name manually."
-            exit 2
-            ;;
-    esac
-
-    echo "$package_name is getting installed with $pm..."
-    sleep 2
-
-    if [ -x "$(command -v "$pm")" ]; then
-        sudo "$pm" "$epm" -y "$package_name" &&
-        echo "$1 installed successfully using $pm" ||
-        {
-            ((type++))
-            install_packages "$1" "$type"
-        }
-    else
-        ((type++))
-        install_packages "$1" "$type"
+importFunctions(){
+    local filename="$1";
+    if [[ ! -f "${src}/${filename}" ]];then
+        echo "some thing went wrong, please try again";
+        exit 9;
+    fi
+    source "${src}/${filename}"
+    func=$2
+    if [[ -n "${func}" ]];then
+        shift 2;
+        "${func}" "$@";
     fi
 }
-
-
+checkfunction(){
+    if [ "$(type -t "$1")" = "function" ]; then
+        echo "true"
+    else
+        echo "false"
+    fi
+}
 deleteFile() {
     local file
     if [[ "${deleteExecutable}" == "true" ]];then
         for file in "$@"; do
-            rm "$file"
+            rm -f "$file"
         done
     fi
 }
 
-execute_code() {
-    local file="$1"
-    local extension="${file##*.}"
-    local fwe="${file%.*}"  # filename without extension
-
-    case "$extension" in
-        "py")
-            python3 "$file"
-            ;;
-        "java")
-            javac "$file" && {
-                cpf=$(java "$file" 2>&1 | awk '{print $NF}')
-                java "${cpf}"
-                } && {
-                    deleteFile "${cpf}.class"
-                }
-            ;;
-        "js")
-            node "$file"
-            ;;
-        "cpp" | "cc" | "c" | "c++")
-            g++ "$file" -o "${fwe}.out" && "./${fwe}.out" && {
-                deleteFile "${fwe}.out"
-            }
-            ;;
-        "class")
-            java "$fwe"
-            ;;
-        "asm")
-            nasm -f elf -o "${fwe}.o" "$file" && {
-                ld -m elf_i386 -o "${fwe}.out" "${fwe}.o"
-            } && "./${fwe}.out" && {
-                deleteFile "${fwe}.out" "${fwe}.o"
-            }
-            ;;
-        "sh")
-            bash "$file"
-            ;;
-        *)
-            echo "Unsupported file extension: $extension"
-            exit 1
-            ;;
-    esac
-}
+declare -A my_dict #caches
 
 main() {
     local file="$1"
-
-    case "$file" in
-        *.py)
-            execute_code "$file"
-            ;;
-        *.java | *.class)
-            if ! command -v java &> /dev/null; then
-                install_packages "openjdk"
-            fi
-            execute_code "$file"
-            ;;
-        *.cpp | *.cc | *.c | *.c++)
-            if ! command -v g++ &> /dev/null; then
-                install_packages "g++"
-            fi
-            execute_code "$file"
-            ;;
-        *.js)
-            if ! command -v nodejs &> /dev/null; then
-                install_packages "nodejs"
-            fi
-            execute_code "$file"
-            ;;
-        *.asm)
-            if ! command -v nasm &> /dev/null; then
-                install_packages "nasm"
-            fi
-            execute_code "$file"
-            ;;
-        *.sh)
-            execute_code "$file"
-            ;;
-        *)
-            echo "Error: Unsupported file type: $file"
-            ;;
-    esac
-}
-current_commit="0.6.4"
-
-if [[ "$1" == "--version" ]]; then
-    echo -e "version is ${current_commit}"
-    exit
-fi
-
-usage() {
-       cat << EOF
-This is a code runner command.
-Supported languages: asm, c, cpp, java, py, node.js, sh.
-Usage:
-    <filename> - Detects file type and runs.
-    -i <packages> - Installs or upgrades packages.
-    -d  - Deletes the executable code and keeps the source.
-    -m  - Uses grep to find pattern.
-    -c  - Will provide comments while running multiple files used when -m is used 
-Examples:
-    run myfile.cpp           # Run a C++ file.
-    run -i python            # Install or upgrade python
-    run -d myfile.c          # Delete the executable of a C file.
-    run -m "[1-9].c$"        # Runs all numbered c files eg:-1.c,12.c
-    run -m .                 # Runs all files in that dictionary that are supported
-EOF
-}
-update_run(){
-    # GitHub repository owner and name
-    owner="sreecharan7"
-    repo="runner"
-    file_path="run"
-    # Get the latest commit information from GitHub API
-    latest_commit=$(curl -sSL "https://api.github.com/repos/$owner/$repo/commits/main")
-    # Parse the latest commit number using jq
-    if ! command -v jq &> /dev/null; then
-        install_packages "jq"
+    local extension="${file##*.}"
+    local fwe="${file%.*}"
+    if [[ ! -f ${file} ]];then
+        echo "file not found: ${file}"
+        return
     fi
-    latest_commit_number=$(echo "$latest_commit" | jq -r '.commit.message')
-    # Compare commit numbers
-    if [[ "$latest_commit_number" != "$current_commit" ]]; then
-        echo "A new version is available. Cloning the repository..."
-
-        raw_url="https://raw.githubusercontent.com/$owner/$repo/main/$file_path"
-
-        cd '/bin';
-        if ! command -v curl &> /dev/null; then
-            install_packages "curl"
-        fi
-        sudo curl -sSL -o "./$(basename "$file_path")" "$raw_url"
-        sudo chmod +x "${file_path}"
-
-        echo "File downloaded to: $(basename "$file_path")"
-        echo "updated sucessfully";
+    if [[ ! -f "${src}/languages/run_${extension}.sh" ]];then
+        echo "Error: Unsupported file type: $file"
+        return
+    fi
+    check=$(checkfunction "run_${extension}");
+    if [[ ! -v my_dict["${extension}"] ]];then
+        source "${src}/languages/run_${extension}.sh";
+        my_dict["${extension}"]=$(declare -f run_lang)
     else
-        echo "You have the latest version."
+        eval "${my_dict["${extension}"]}"
     fi
+    run_lang "${file}" "${fwe}"
 }
 
 
-
-if [[ "$1" == "--help" ]]; then
-    usage
-    exit
+if [[ "${1:0:2}" == "--" ]]; then
+    importFunctions "functions.sh" "double_dash_functions" "$@"
 fi
 
-if [[ "$1" == "--update" ]]; then
-    update_run
-    exit
-fi
-
-latest_file_run() {
-    latest_edited=$(ls -lt |  grep -v -E '\.out$|\.o$'| head -2 | tail -1 | awk '{print $NF}');
-    if [ -z "$latest_edited" ]; then
-        echo "no latest file found"
-        exit 5;
-    else
-        main "${latest_edited}"
-    fi
-    exit
-}
 
 deleteExecutable="false"
 multipleFiles="false" #run multiple files
@@ -213,10 +67,10 @@ comment="main" #comments while executing multiple files
 while getopts ":dmtci:" opt; do
     case ${opt} in
         d ) deleteExecutable="true" ;;
-        i ) install_packages "$OPTARG"
+        i )importFunctions "install.sh" "install_packages" "$OPTARG";
             exit ;;
         m ) multipleFiles="true" ;;
-        t )latest_file_run  ;;
+        t ) importFunctions "functions.sh" "latest_file_run" ;;
         c ) comment="comment";;
         \? ) echo "Invalid option: $OPTARG" 1>&2; exit 3 ;;
         : ) echo "Option -$OPTARG requires an argument." 1>&2; exit 3 ;;
@@ -224,30 +78,38 @@ while getopts ":dmtci:" opt; do
 done
 
 if [[ -z ${@} ]];then
-    echo "Please ,provide the filename/filepath"/pattren;
+    echo "Please ,provide the filename/filepath/pattren";
     exit 4;
 fi
 
-directory=$(dirname "${@: -1}")
-cd "$directory" || exit
-file=$(basename "${@: -1}")
+shift $((OPTIND -1)) ;
+
+terminal_width=""
 
 comment(){
-    echo -e "\nrunning $1 ...\n";
+    terminal_width=${terminal_width:-$(tput cols)};
+    echo -e "\e[1;4;31m${1}\e[0m\n";
     main "$1";
-    echo -e "\nexecuted $1 ..."
+    printf '%*s\n' "${terminal_width}" | tr ' ' '-'
 }
 
-if [ ! -f "$file" ]; then
-    if [ "${multipleFiles}" == "true" ]; then
-        OLD_IFS=$IFS
-        IFS=$'\n'
-        for f in  $(ls -p | grep -v / |  
-            grep -E "${file}" | grep -v -E '\.out$|\.o$');do
-            ${comment} "$f";
-        done
-        IFS=$OLD_IFS
-    else echo "file not found: $file";exit 1;
+if [ "${multipleFiles}" == "true" ]; then
+    if [ "$#" != 1 ];then
+        echo "too many argumetns only one needed that is pattren";
+        exit 3
     fi
-else main "$file"
+    cd "$(dirname "${1}")" || exit
+    OLD_IFS=$IFS
+    IFS=$'\n'
+    for f in  $(ls -p | grep -v / |  
+        grep -E "$(basename "${1}")" | grep -v -E '\.out$|\.o$');do
+        ${comment} "$f";
+    done
+    IFS=$OLD_IFS
+else 
+for f in "$@";do
+    cd "$(dirname "${f}")" || exit
+    ${comment} "$(basename "${f}")";
+    cd "${current_path}";
+done
 fi
