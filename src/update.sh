@@ -6,7 +6,7 @@ update_run(){
     fi
     curent_version=$(jq -r '.version' "${src}/details.json")
 
-    url=""
+    url="https://raw.githubusercontent.com/sreecharan7/runner/main/src/details.json"
 
     json=$(curl -s "$url")
 
@@ -23,7 +23,9 @@ update_run(){
         exit
     fi
 
-    readarray -t array < <(echo "$json" | jq -r '.install-commands[]')
+
+    readarray -t array < <(echo "$json" | jq -r '.installCommands[]')
+
     if [ $? -ne 0 ]; then
         echo "Failed to parse JSON data"
         exit 1
