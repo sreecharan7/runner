@@ -1,13 +1,13 @@
 #!/bin/bash
 
-cp -r ./src /usr/local/src/run
+rm -rf /usr/local/src/run/
+mv -f ./src /usr/local/src/run
 
-cp ./run /usr/bin
+mv -f ./run /usr/bin
 
 chmod +x /usr/bin/run
 
-echo "installed sucessfully\n deleting source files"
+echo -e "installed sucessfully\n deleting source files"
 
-rm -fr ./src
-rm  -f run
-rm -f install.sh
+cd .. 
+rm -rf runner
