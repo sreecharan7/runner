@@ -31,6 +31,6 @@ update_run(){
         exit 1
     fi
     for element in "${array[@]}"; do
-        "$element"
+        $element
     done
 }
