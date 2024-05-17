@@ -6,7 +6,7 @@ update_run(){
     fi
     curent_version=$(jq -r '.version' "${src}/details.json")
 
-    url="https://raw.githubusercontent.com/sreecharan7/runner/main/src/details.json"
+    url=$(jq -r '.url' "${src}/details.json")
 
     json=$(curl -s "$url")
 
