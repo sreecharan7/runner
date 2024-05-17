@@ -1,8 +1,10 @@
 {
-    "version":"0.7.0",
+    "version":"0.7.1",
     "installCommands":[
-        "git clone https://github.com/sreecharan7/runner",
+        "sudo git clone https://github.com/sreecharan7/runner",
         "cd runner",
-        "sudo bash install.sh"
+        "sudo bash install.sh",
+        "cd ..",
+        "sudo rm -rf runner"
     ]
 }

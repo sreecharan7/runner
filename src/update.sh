@@ -30,7 +30,17 @@ update_run(){
         echo "Failed to parse JSON data"
         exit 1
     fi
+
+    if ! command -v git &> /dev/null; then
+        echo "installing some dependencies"
+        importFunctions "install.sh" "install_packages" "git"
+    fi
+
     for element in "${array[@]}"; do
         $element
+        if [[ $? != 0 ]];then
+            echo "something went wrong while updating pls try again";
+            exit 11
+        fi
     done
 }
