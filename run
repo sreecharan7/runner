@@ -70,7 +70,7 @@ while getopts ":dmtci:" opt; do
         i )importFunctions "install.sh" "install_packages" "$OPTARG";
             exit ;;
         m ) multipleFiles="true" ;;
-        t ) importFunctions "functions.sh" "latest_file_run" ;;
+        t ) importFunctions "functions.sh" "latest_file_run" "$@";;
         c ) comment="comment";;
         \? ) echo "Invalid option: $OPTARG" 1>&2; exit 3 ;;
         : ) echo "Option -$OPTARG requires an argument." 1>&2; exit 3 ;;

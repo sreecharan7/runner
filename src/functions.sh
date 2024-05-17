@@ -1,4 +1,5 @@
 latest_file_run() {
+    check_array_length "1" "$@"
     latest_edited=$(ls -lt |  grep -v -E '\.out$|\.o$'| head -2 | tail -1 | awk '{print $NF}');
     if [ -z "$latest_edited" ]; then
         echo "no latest file found"

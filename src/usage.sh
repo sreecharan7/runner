@@ -1,18 +1,27 @@
 usage() {
-       cat << EOF
-This is a code runner command.
-Supported languages: asm, c, cpp, java, py, node.js, sh.
-Usage:
-    <filename> - Detects file type and runs.
-    -i <packages> - Installs or upgrades packages.
-    -d  - Deletes the executable code and keeps the source.
-    -m  - Uses grep to find pattern.
-    -c  - Will provide comments while running multiple files used when -m is used 
+    cat << EOF
+Usage: run [options] <filename>
+    
+This command runs code files in various supported languages.
+Supported languages: asm, c, cpp, java, py, node.js.
+
+Options:
+    -i <packages>    Install or upgrade packages.
+    -d               Delete the executable file after running (keeps source).
+    -m <pattern>     Use grep to find pattern in files.
+    -c               Provide filename and separate code with lines after execution.
+    -t               Run the latest edited file in the current directory (no need of arguments).
+
+More Options:
+    --help           Display this help message.
+    --version        Show version information.
+    --update         Update to the latest version of the command.
+
 Examples:
-    run myfile.cpp           # Run a C++ file.
-    run -i python            # Install or upgrade python
-    run -d myfile.c          # Delete the executable of a C file.
-    run -m "[1-9].c$"        # Runs all numbered c files eg:-1.c,12.c
-    run -m .                 # Runs all files in that dictionary that are supported
+    run myfile.cpp      # Run a C++ file.
+    run -i python       # Install or upgrade Python packages.
+    run -d myfile.c     # Delete executable of a C file.
+    run -m "[1-9].c$"   # Find and run numbered C files (e.g., 1.c, 12.c).
+    run -m .            # Run all supported files in the current directory.
 EOF
 }
