@@ -43,4 +43,6 @@ update_run(){
             exit 11
         fi
     done
+
+    echo -e "\e[32mupdated sucessfully\e[0m\n""
 }

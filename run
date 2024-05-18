@@ -64,13 +64,14 @@ deleteExecutable="false"
 multipleFiles="false" #run multiple files
 comment="main" #comments while executing multiple files
 
-while getopts ":dmtci:" opt; do
+while getopts ":dmtcb:i:" opt; do
     case ${opt} in
         d ) deleteExecutable="true" ;;
         i )importFunctions "install.sh" "install_packages" "$OPTARG";
             exit ;;
         m ) multipleFiles="true" ;;
         t ) importFunctions "functions.sh" "latest_file_run" "$@";;
+        b) importFunctions "functions.sh" "run_buddle" "$@"; exit ;;
         c ) comment="comment";;
         \? ) echo "Invalid option: $OPTARG" 1>&2; exit 3 ;;
         : ) echo "Option -$OPTARG requires an argument." 1>&2; exit 3 ;;
@@ -78,7 +79,7 @@ while getopts ":dmtci:" opt; do
 done
 
 if [[ -z ${@} ]];then
-    echo "Please ,provide the filename/filepath/pattren";
+    echo "Please ,provide the filename/filepath";
     exit 4;
 fi
 
