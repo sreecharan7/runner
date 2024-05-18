@@ -44,5 +44,5 @@ update_run(){
         fi
     done
 
-    echo -e "\e[32mupdated sucessfully\e[0m\n""
+    echo -e "\e[32mupdated sucessfully\e[0m\n"
 }
