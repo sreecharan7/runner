@@ -7,10 +7,28 @@ Runner is a  command-line tool (run) designed to execute code files in various s
 ## Installation
 
 To install Command Runner, clone the repository and run the installation script:
+### Linux Installation Steps
 
 ```bash
 sudo git clone https://github.com/sreecharan7/runner.git && cd runner && sudo bash install.sh && cd .. && sudo rm -rf runner
 ```
+
+### Windows Installation Steps
+
+1. **Install WSL (Windows Subsystem for Linux)**:
+   Open PowerShell as Administrator and run the following command:
+   ```powershell
+   wsl --install
+   ```
+   Follow the prompts to complete the installation of WSL.
+
+2. **Install Command Runner**:
+   Once WSL is installed , open the WSL terminal ( just type "wsl" in terminal ) and run the following commands:
+   ```bash
+   sudo git clone https://github.com/sreecharan7/runner.git && cd runner && sudo bash install.sh && cd .. && sudo rm -rf runner
+   ```
+   This command clones the repository, runs the installation script, and cleans up after installation.
+   This will be only avalible in the wsl only.
 
 This command clones the repository, runs the installation script, and cleans up after installation.
 
