@@ -2,7 +2,7 @@
 
 # Runner
 
-Runner is a  command-line tool (run) designed to execute code files in various supported languages and provide additional functionalities. Supports only linux
+Runner is a  command-line tool (run) designed to execute code files in various supported languages and provide additional functionalities. Supports only in linux
 
 ## Installation
 
