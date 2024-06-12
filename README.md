@@ -62,6 +62,7 @@ Command Runner supports the following languages:
 - `--help`: Display how the command works.
 - `--version`: Show version information.
 - `--update`: Update to the latest version of the command.
+- `--uninstall`: To unistall command.
 - `--addb`: Add a new batch for batch execution.
 - `--editb`: Edit an existing batch.
 

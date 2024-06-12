@@ -1,16 +1,23 @@
 #!/bin/bash
 
-rm -rf /usr/local/src/run/
-mkdir -p /usr/local/src/run
-cp -rpf ./src /usr/local/src/run
+dir_file=$(dirname $(command -v bash))
+dir_src=$(dirname ${dir_file});
 
-rm -f /usr/bin/run
-cp -f ./run /usr/bin
+file_dist="${dir_file}/run"
+dir_dist="${dir_src}/local/src/run"
 
-chmod +x /usr/bin/run
+rm -rf "${dir_dist}"
+mkdir -p "${dir_dist}"
+cp -rpf ./src "${dir_dist}"
 
-if [[ -f "/usr/bin/run" ]]; then
-    if [[ -d "/usr/local/src/run/src" ]]; then
+rm -f "${file_dist}"
+cp -f ./run "${file_dist}"
+
+chmod +x "${file_dist}"
+
+if [[ -f "${file_dist}" ]]; then
+    if [[ -d "${dir_dist}" ]]; then
+        sed -i "2s#^src=.*#src=\"${dir_dist}/src\"#" "${file_dist}"
         echo -e "\e[32minstalled sucessfully\e[0m\n"
         else
         echo -e "\e[31msomething went wrong try again...\e[0m";exit 10;

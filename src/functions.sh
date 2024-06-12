@@ -32,6 +32,11 @@ double_dash_functions(){
         importFunctions "update.sh" "update_run";
         exit
         ;;
+     "--uninstall")
+        check_array_length "1" "$@"
+        uninstall_run
+        exit
+        ;;
      "--addb")
         check_array_length "1" "$@"
         bundle_comands
@@ -96,6 +101,23 @@ bundle_comands(){
     fi
     
     echo "created bunddle sucessfully"
+}
+
+uninstall_run(){
+    file_dist=$(command -v run);
+    dir_dist="$(dirname "$(dirname "${file_dist}")")/local/src/run";
+
+    sudo rm -rf "${file_dist}" "${dir_dist}"
+
+    if [[ ! -f "${file_dist}" ]]; then
+        if [[ ! -d "${dir_dist}" ]]; then
+            echo -e "\e[32muninstalled sucessfully\e[0m\n"
+            else
+            echo -e "\e[31monly half unistalled\e[0m";exit 10;
+        fi
+    else 
+        echo -e "\e[31msomething went wrong try again...\e[0m";exit 10; 
+    fi
 }
 
 run_buddle(){
