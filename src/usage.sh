@@ -17,6 +17,7 @@ More Options:
     --help           Display's the how command work's.
     --version        Show version information.
     --update         Update's to the latest version of the command.
+    --uninstall      Uninstall the command.
     --addb           Add a new batch.
     --editb          Edit an existing batch.
 
