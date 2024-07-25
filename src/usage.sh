@@ -21,6 +21,8 @@ More Options:
     --cleanup        Removes all files end with *.exe | *.o | *.out
     --addb           Add a new batch.
     --editb          Edit an existing batch.
+    --listb          List the all bacth
+    --deleteb        Delete an existing batch.
 
 Examples:
     run myfile.cpp      # Run a C++ file.
