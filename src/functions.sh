@@ -37,6 +37,11 @@ double_dash_functions(){
         uninstall_run
         exit
         ;;
+     "--cleanup")
+        check_array_length "1" "$@"
+        cleanup
+        exit
+        ;;
      "--addb")
         check_array_length "1" "$@"
         bundle_comands
@@ -101,6 +106,10 @@ bundle_comands(){
     fi
     
     echo "created bunddle sucessfully"
+}
+
+cleanup(){
+    find . -type f \( -name "*.exe" -o -name "*.out" -o -name "*.o" \) -delete;
 }
 
 uninstall_run(){

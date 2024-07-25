@@ -18,6 +18,7 @@ More Options:
     --version        Show version information.
     --update         Update's to the latest version of the command.
     --uninstall      Uninstall the command.
+    --cleanup        Removes all files end with *.exe | *.o | *.out
     --addb           Add a new batch.
     --editb          Edit an existing batch.
 
