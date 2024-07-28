@@ -27,8 +27,6 @@ sudo git clone https://github.com/sreecharan7/runner.git && cd runner && sudo ba
    ```bash
    sudo git clone https://github.com/sreecharan7/runner.git && cd runner && sudo bash install.sh && cd .. && sudo rm -rf runner
    ```
-   This command clones the repository, runs the installation script, and cleans up after installation.
-   This will be only avalible in the wsl only.
 
 This command clones the repository, runs the installation script, and cleans up after installation.
 
@@ -63,8 +61,33 @@ Command Runner supports the following languages:
 - `--version`: Show version information.
 - `--update`: Update to the latest version of the command.
 - `--uninstall`: To unistall command.
+- `--cleanup`: Removes all files end with *.exe | *.o | *.out
 - `--addb`: Add a new batch for batch execution.
 - `--editb`: Edit an existing batch.
+- `--listb`: List the all bacth.
+- `--deleteb`: Delete an existing batch.
+- `--share`: This  is used for sharing files in same network
+
+**Usage:** `run --share <operation type>`
+
+**Operation Types:**
+1. `share`
+2. `receive`
+
+**All options are optional.**
+
+**run --share send <filepath/folderpath>**
+
+**Share Options:**
+- `-p`  Specify the password for the sharing file (if not provided, the password will not be saved).
+- `-s`  Enter the password after the command is run for secure password entry without displaying it.
+- `-n`  Set the name that receivers will see.
+
+**Receive Options:**
+- `-o`  Specify where the downloaded or received file should be stored (default is the current directory).
+- `-i`  Specify the IP address to receive from.
+- `-p`  Specify the port from which the file is being hosted.
+
 
 ### Examples
 
@@ -75,6 +98,8 @@ run -d myfile.c      # Delete executable of a C file.
 run -m "[1-9].c$"    # Find and run numbered C files (e.g., 1.c, 12.c).
 run -m .             # Run all supported files in the current directory.
 run -b batch1        # Run commands defined in batch1.
+run --share send ./  # to share a file to local network
+run --share receive  # to recive a file from local neetwork
 ```
 
 ## Contributing

@@ -23,6 +23,8 @@ More Options:
     --editb          Edit an existing batch.
     --listb          List the all bacth
     --deleteb        Delete an existing batch.
+    --share          This  is used for sharing files in same network. 
+                     To know more about this, type (run --share help).
 
 Examples:
     run myfile.cpp      # Run a C++ file.
@@ -53,5 +55,29 @@ Examples of bundling commands:
 3) Combined commands with '&&' and '||' for error handling:
     { npm i && npm run dev } || { sudo apt-get install npm }
 
+EOF
+}
+
+share_usage(){
+    cat << EOF
+Usage: run --share <operation type>
+
+Operation Types:
+  1) share
+  2) receive
+
+All options are optional.
+
+run --share send <filepath/folderpath>
+
+Share Options:
+  -p  Specify the password for the sharing file (without this, the password will not be kept).
+  -s  Enter the password after the command is run for secure password entry without displaying it.
+  -n  Set the name that receivers will see.
+
+Receive Options:
+  -o  Specify where the downloaded or received file should be stored (default is the current directory).
+  -i  Specify the IP address to receive from.
+  -p  Specify the port from which the file is being hosted.
 EOF
 }

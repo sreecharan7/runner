@@ -62,6 +62,10 @@ double_dash_functions(){
         delete_buddle
         exit
         ;;    
+     "--share")
+        importFunctions "share.sh" "share" "$@";
+        exit
+        ;;
         *)
         echo "option is not present"
         exit 8
