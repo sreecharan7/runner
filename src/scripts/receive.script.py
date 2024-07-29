@@ -59,7 +59,10 @@ def main(stdscr, output_path):
     global selected_option
 
     try:
+        # Initialize curses
         curses.curs_set(0)
+        curses.start_color()
+        curses.init_pair(1, curses.COLOR_BLACK, curses.COLOR_BLUE)  # Define color pair 1 for blue background
         stdscr.keypad(1)
         stdscr.clear()
 
@@ -109,7 +112,7 @@ def main(stdscr, output_path):
                 x = w // 2 - len(row) // 2
                 y = 2 + idx  # Adjust for the extra line of space
                 if start_row + idx == current_row:
-                    stdscr.attron(curses.color_pair(1))
+                    stdscr.attron(curses.color_pair(1))  # Use blue color pair
                     stdscr.addstr(y, x, row)
                     stdscr.attroff(curses.color_pair(1))
                 else:
@@ -148,7 +151,7 @@ def main(stdscr, output_path):
             second_word = words[2]
         else:
             return
-        downloadfile(second_word, output_path)  ## Use the output_path argument
+        downloadfile(second_word, output_path)
 
 def parse_arguments(argv):
     try:
