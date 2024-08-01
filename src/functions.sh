@@ -23,7 +23,6 @@ double_dash_functions(){
         exit
         ;;
      "--help")
-        check_array_length "1" "$@"
         importFunctions "usage.sh" "usage";
         exit
         ;;
@@ -67,7 +66,7 @@ double_dash_functions(){
         exit
         ;;
         *)
-        echo "option is not present"
+        echo "option is not present as sencondary ($1) refer run --help"
         exit 8
         ;;
     esac
@@ -77,7 +76,7 @@ check_array_length(){
     length=$1
     ((length++))
     if [[ $# != ${length} ]];then
-        echo "given more arguments to the comand"
+        echo "given more arguments to the comand for the option"
         exit
     fi
 }

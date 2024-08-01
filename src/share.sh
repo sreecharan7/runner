@@ -33,7 +33,7 @@ send() {
     done
     scripts_src="${src}/scripts";
     
-    python3  "${scripts_src}/filehosting.script.py" ${filepath} --password ${password}  &
+    python3  "${scripts_src}/filehosting.script.py" "${filepath}" --password "${password}"  &
     SERVER_FILE_HOSTING_PID=$!
 
     sleep 2

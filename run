@@ -4,7 +4,7 @@ src="/usr/local/src/run/src"
 importFunctions(){
     local filename="$1";
     if [[ ! -f "${src}/${filename}" ]];then
-        echo "some thing went wrong, please try again";
+        echo "something went wrong, please try again";
         exit 9;
     fi
     source "${src}/${filename}"
@@ -64,7 +64,7 @@ deleteExecutable="false"
 multipleFiles="false" #run multiple files
 comment="main" #comments while executing multiple files
 
-while getopts ":dmtcb:i:" opt; do
+while getopts ":dmtcb:i:h" opt; do
     case ${opt} in
         d ) deleteExecutable="true" ;;
         i )importFunctions "install.sh" "install_packages" "$OPTARG";
@@ -72,8 +72,9 @@ while getopts ":dmtcb:i:" opt; do
         m ) multipleFiles="true" ;;
         t ) importFunctions "functions.sh" "latest_file_run" "$@";;
         b) importFunctions "functions.sh" "run_buddle" "$@"; exit ;;
+        h) importFunctions "functions.sh" "double_dash_functions" "--help";exit ;;
         c ) comment="comment";;
-        \? ) echo "Invalid option: $OPTARG" 1>&2; exit 3 ;;
+        \? ) echo "Invalid option: $OPTARG  please refer run --help" 1>&2; exit 3 ;;
         : ) echo "Option -$OPTARG requires an argument." 1>&2; exit 3 ;;
     esac
 done
