@@ -1,5 +1,4 @@
 update_run(){
-    # GitHub repository owner and name
     if ! command -v jq &> /dev/null; then
         echo "installing some dependencies"
         importFunctions "install.sh" "install_packages" "jq"
@@ -44,5 +43,5 @@ update_run(){
         fi
     done
 
-    echo -e "\e[32mupdated sucessfully\e[0m\n"
+    echo -e "\e[32mupdated sucessfully from $curent_version to $latest_version version\e[0m\n"
 }
