@@ -42,7 +42,6 @@ send() {
         echo -e "installing some dependencies..."
         importFunctions "install.sh" "install_packages" "lsof"
         importFunctions "install.sh" "install_packages" "net-tools"
-
     fi
 
    port=$(lsof -nP -iTCP -sTCP:LISTEN | grep $(ps -p $SERVER_FILE_HOSTING_PID -o comm=) | awk '{print $9}' | cut -d: -f2 | tail -n 1)
@@ -53,21 +52,30 @@ send() {
         exit 45
     fi
 
-
-    ip_data=$(for iface in $(ls /sys/class/net/); do
-        BROADCAST_IP=$(ifconfig $iface 2>/dev/null | grep 'broadcast' | awk '{print $6}')
-        IP4_ADDR=$(ifconfig $iface 2>/dev/null | grep 'inet ' | awk '{print $2}')
-        if [ -n "$BROADCAST_IP" ] && [ -n "$IP4_ADDR" ]; then
-            echo "$IP4_ADDR $BROADCAST_IP"
-        fi
-    done );
     
     if [ -z "$name" ]; then
         name=$(echo $USER)
     fi
 
-    python3  "${scripts_src}/broadcast.script.py" "${ip_data}" "${port}" "${name}" 1>/dev/null &
-    SERVER_BROADCASATING_PID=$!
+    SERVER_BROADCASATING_kill=""
+    ip_data=""
+
+    if grep -q "microsoft" /proc/version; then
+        echo "Detected, Running on WSL"
+        importFunctions "wsl/share.sh" 
+        start_the_broadcast_in_windows "${port}" "${name}"
+    else
+        ip_data=$(for iface in $(ls /sys/class/net/); do
+                BROADCAST_IP=$(ifconfig $iface 2>/dev/null | grep 'broadcast' | awk '{print $6}')
+                IP4_ADDR=$(ifconfig $iface 2>/dev/null | grep 'inet ' | awk '{print $2}')
+                if [ -n "$BROADCAST_IP" ] && [ -n "$IP4_ADDR" ]; then
+                    echo "$IP4_ADDR $BROADCAST_IP"
+                fi
+            done );
+        python3  "${scripts_src}/broadcast.script.py" "${ip_data}" "${port}" "${name}" 1>/dev/null &
+        SERVER_BROADCASATING_PID=$!
+        SERVER_BROADCASATING_kill="kill ${SERVER_BROADCASATING_PID}"
+    fi
 
     # extracting the ip adress data
     ip_result=$(echo "$ip_data" | awk '{print $1}' | awk '{printf "%s, ", $0}' | sed 's/, $//')
@@ -81,7 +89,7 @@ Ip adress are  \033[1;34m${ip_result}\033[0m
     cleanup(){
         echo -e "\033[1;31mstoping the broadcasting service\033[0m"
         kill $SERVER_FILE_HOSTING_PID
-        kill $SERVER_BROADCASATING_PID
+        eval $SERVER_BROADCASATING_kill 2>/dev/null
         wait $SERVER_FILE_HOSTING_PID 2>/dev/null
         wait $SERVER_BROADCASATING_PID 2>/dev/null
         echo -e "\033[1;32mstoped sthe broadcasting service, sucessfully\033[0m"
