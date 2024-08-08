@@ -83,7 +83,7 @@ if __name__ == "__main__":
         print(f"Error: The file '{args.file_path}' does not exist or is not a file.")
         sys.exit(1)
     
-    port = find_free_port(4000)
+    port = find_free_port(10584)
     os.environ['PORTSERVER'] = str(port) 
     
     run_server(port, args.file_path, args.password)

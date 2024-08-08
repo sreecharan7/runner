@@ -36,6 +36,11 @@ double_dash_functions(){
         uninstall_run
         exit
         ;;
+    "--reinstall")
+        check_array_length "1" "$@"
+        importFunctions "update.sh" "reinstall_run";
+        exit
+        ;;
      "--cleanup")
         check_array_length "1" "$@"
         cleanup
