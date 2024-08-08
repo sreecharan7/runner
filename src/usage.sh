@@ -18,7 +18,8 @@ More Options:
     --version        Show version information.
     --update         Update's to the latest version of the command.
     --uninstall      Uninstall the command.
-    --cleanup        Removes all files end with *.exe | *.o | *.out
+    --reinstall      Reinstalls the command.
+    --cleanup        Removes all files end with *.exe | *.o | *.out.
     --addb           Add a new batch.
     --editb          Edit an existing batch.
     --listb          List the all bacth
@@ -32,6 +33,8 @@ Examples:
     run -d myfile.c     # Delete executable of a C file.
     run -m "[1-9].c$"   # Find and run numbered C files (e.g., 1.c, 12.c).
     run -m .            # Run all supported files in the current directory.
+    run --share send .  # This will start the broadcasting or sending of 
+                          all files in the current directory
 EOF
 }
 
@@ -79,5 +82,13 @@ Receive Options:
   -o  Specify where the downloaded or received file should be stored (default is the current directory).
   -i  Specify the IP address to receive from.
   -p  Specify the port from which the file is being hosted.
+
+Examples:
+    run --share send .
+    run --share send ./file -p 123
+    run --share send /home/user/folder -n user -s
+    run --share receive
+    run --share receive -o ./destination
+    run --share receive -i 172.16.55.87 -p 4000
 EOF
 }

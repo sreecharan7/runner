@@ -6,6 +6,11 @@ dir_src=$(dirname ${dir_file});
 file_dist="${dir_file}/run"
 dir_dist="${dir_src}/local/src/run"
 
+if ! grep -q "microsoft" /proc/version; then
+    echo "removing some unnecessary files..."
+    rm -rf ./src/wsl
+fi
+
 rm -rf "${dir_dist}"
 mkdir -p "${dir_dist}"
 cp -rpf ./src "${dir_dist}"
