@@ -89,6 +89,16 @@ Ip adress are  \033[1;34m${ip_result}\033[0m
     cleanup(){
         echo -e "\033[1;31mstoping the broadcasting service\033[0m"
         kill $SERVER_FILE_HOSTING_PID
+        if grep -q "microsoft" /proc/version; then
+            SERVER_BROADCASTING_PIDS=$(powershell.exe -Command "Get-Process -Name 'broadcastmsgwtn' | Select-Object -ExpandProperty Id")
+            if [[ -n "$SERVER_BROADCASTING_PIDS" ]]; then
+                for PID in $SERVER_BROADCASTING_PIDS; do
+                    powershell.exe -Command "Stop-Process -Id $PID" 2>/dev/null
+                done
+            else
+                echo "No 'broadcast' process found."
+            fi
+        fi
         eval $SERVER_BROADCASATING_kill 2>/dev/null
         wait $SERVER_FILE_HOSTING_PID 2>/dev/null
         wait $SERVER_BROADCASATING_PID 2>/dev/null
@@ -158,14 +168,15 @@ receive() {
     output="."
     ipaddress=""
     port=""
-    if ! command -v python3 &> /dev/null ; then
-        importFunctions "install.sh" "install_packages" "python3"
-    fi
+   
 
     library="requests"
-    python -c "import $library" 2>/dev/null 1>/dev/null
+    python3 -c "import $library" 2>/dev/null 1>/dev/null
     if [ ! $? -eq 0 ]; then
         echo "$library is not available. Installing..."
+        if ! command -v pip3 &> /dev/null ; then
+            importFunctions "install.sh" "install_packages" "python3-pip"
+        fi
         pip install $library
         if [ $? -eq 0 ]; then
             echo "$library has been installed successfully."
@@ -209,11 +220,35 @@ receive() {
         exit 
     fi
     
-        echo "use up and down arrow to navigate
-(press (ctrl+c) to exit) or select exit option"
-        sleep 2
-        python3 "${scripts_src}/receive.script.py" -o "${output}" 2>/dev/null
+    cleanuprecive(){
+        echo -e "\033[1;31mstoping the receiving service\033[0m"
+        if grep -q "microsoft" /proc/version; then
+            SERVER_BROADCASTING_PIDS=$(powershell.exe -Command "Get-Process -Name 'wawnmediator' | Select-Object -ExpandProperty Id")
+            if [[ -n "$SERVER_BROADCASTING_PIDS" ]]; then
+                for PID in $SERVER_BROADCASTING_PIDS; do
+                    powershell.exe -Command "Stop-Process -Id $PID" 2>/dev/null
+                done
+            fi
+        fi
+        echo -e "\033[1;32mstoped sthe receiving service, sucessfully\033[0m"
+        exit
+    }
 
+    trap cleanuprecive SIGINT
+    # dectecting wsl
+    if grep -q "microsoft" /proc/version; then
+        echo "Detected, Running on WSL"
+        importFunctions "wsl/share.sh"
+        start_the_mediator_in_windows
+    fi
+
+    echo "use up and down arrow to navigate
+(press (ctrl+c) to exit) or select exit option"
+    sleep 2
+    python3 "${scripts_src}/receive.script.py" -o "${output}"  2>/dev/null
+    
+    #stopting the .exe file process that is running in windows background
+    cleanuprecive
 }
 
 share() {

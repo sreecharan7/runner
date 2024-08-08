@@ -11,8 +11,8 @@ start_the_broadcast_in_windows(){
     fi
 
     while IFS= read -r line; do
-        ip=$(echo "$line" | cut -d ' ' -f1| tr -d '\n' | tr -d ' '| tr -d '\r')
-        subnet=$(echo "$line" | cut -d ' ' -f2 | tr -d '\n' | tr -d ' '| tr -d '\r')
+        ip=$(echo "$line" | cut -d ' ' -f1| tr -d '\n\r' | tr -d ' ')
+        subnet=$(echo "$line" | cut -d ' ' -f2 | tr -d '\n\r' | tr -d ' ')
         if [[ $subnet =~ ^[0-9]+$ ]]; then
             broadcast=$(convert_ip_subnet_broadcast "$ip" "$subnet")
             ip_data+="$ip $broadcast"$'\n'
@@ -20,11 +20,12 @@ start_the_broadcast_in_windows(){
     done <<< "$data"
 
     #script path from perspective of windows
-    scripts_src=$(wslpath -w "${src}/scripts/broadcast.script.py")
+    script_src=$(wslpath -w "${src}/wsl/broadcastmsgwtn.exe")
     #running the broadcsting script in windows in powershell mode and capaturing pid
-    SERVER_BROADCASATING_PID=$(powershell.exe  -Command "Start-Process -FilePath 'python3.exe' -ArgumentList '\"${scripts_src}\"', '\"${ip_data}\"', '\"${port}\"', '\"${name}\"'  -PassThru | Select-Object -ExpandProperty Id"| cut -d ' ' -f1| tr -d '\n' | tr -d ' '| tr -d '\r')
-    #maing the kill command for the above command
-    SERVER_BROADCASATING_kill="powershell.exe  -Command \"Stop-Process -Id ${SERVER_BROADCASATING_PID} -Force\""
+    perssmision_redirecting_traffic_to_wsl $port
+    echo "This may propmt a window to run the file (press run if asked)."
+    #runnig the broadcast.exe which is exe file broacast.py
+    powershell.exe  -Command "Start-Process  -WindowStyle Hidden '${script_src}' -ArgumentList  '\"${ip_data}\"', '\"${port}\"', '\"${name}\"'  -PassThru | Select-Object -ExpandProperty Id" 1>/dev/null
 }
 
 convert_ip_subnet_broadcast(){
@@ -34,3 +35,31 @@ convert_ip_subnet_broadcast(){
     echo "$broadcast"
 }
 
+perssmision_redirecting_traffic_to_wsl(){
+    listenPort=$1
+    connectPort=$1
+    listenAddress="0.0.0.0"
+    currentWSLIP=$(ip addr | grep eth0 | grep inet | awk '{print $2}' | cut -d/ -f1)
+
+    existingRule=$(powershell.exe -Command "netsh interface portproxy show v4tov4 | Select-String -Pattern $listenPort")
+
+    if [[ $existingRule == *"$listenAddress"* && $existingRule == *"$listenPort"* && $existingRule == *"$currentWSLIP"* && $existingRule == *"$connectPort"* ]]; then
+        echo "Port forwarding rule for port $listenPort with IP $currentWSLIP already exists."
+    else
+        echo "Adding port forwarding rule for port $listenPort..."
+        echo "This may ask for the permission for running as administration mode (press yes if asked)"
+        sleep 2
+        powershell.exe -Command "& {Start-Process powershell -ArgumentList '-Command \"netsh interface portproxy add v4tov4 listenport=$listenPort listenaddress=$listenAddress connectport=$connectPort connectaddress=$currentWSLIP; netsh advfirewall firewall add rule name=\\\"WSL Port $listenPort\\\" dir=in action=allow protocol=TCP localport=$listenPort\"' -Verb RunAs}"
+        echo "Port forwarding rule added."
+    fi
+}
+
+start_the_mediator_in_windows(){
+    echo "Optimising for WSL..."
+    script_src=$(wslpath -w "${src}/wsl/wawnmediator.exe")
+    router_id=$(ip route | grep default | awk '{print $3}')
+    broadcast_address=$(ip addr show eth0 | grep 'inet ' | awk '{print $4}' | cut -d'/' -f1)
+    echo "This may propmt a window to run the file (press run if asked)."
+    #runnig the broadcast.exe which is exe file mediator.py
+    powershell.exe  -Command "Start-Process  -WindowStyle Hidden  '${script_src}' -ArgumentList  '\"${broadcast_address}\"', '\"${router_id}\"'  -PassThru | Select-Object -ExpandProperty Id" 1>/dev/null
+}
