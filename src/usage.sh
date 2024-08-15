@@ -10,6 +10,7 @@ Options:
     -d               Delete the executable file after running (keeps source).
     -m <pattern>     Use's grep to find pattern in files.
     -c               Provide filename and separate code with lines after execution.
+    -a               Provide arguments to the running program (use quotations for better results)
     -t               Run the latest edited file in the current directory (no need of arguments).
     -b <batch name>  Run the specific batch commands.
 
@@ -31,6 +32,7 @@ Examples:
     run myfile.cpp      # Run a C++ file.
     run -i python       # Install or upgrade Python packages.
     run -d myfile.c     # Delete executable of a C file.
+    run -a 'argument' 1.py # Gives argument to the program  
     run -m "[1-9].c$"   # Find and run numbered C files (e.g., 1.c, 12.c).
     run -m .            # Run all supported files in the current directory.
     run --share send .  # This will start the broadcasting or sending of 

@@ -52,6 +52,7 @@ Command Runner supports the following languages:
 - `-d`: Delete the executable file after running (keeps source).
 - `-m <pattern>`: Uses grep to find a pattern in files before execution.
 - `-c`: Provide filename and separate code with lines after execution.
+- `-a`: Provide arguments to the running program (use quotations for better results)
 - `-t`: Run the latest edited file in the current directory (no need for arguments).
 - `-b <batch name>`: Run specific batch commands defined by `<batch name>`.
 
@@ -99,6 +100,7 @@ run -m "[1-9].c$"    # Find and run numbered C files (e.g., 1.c, 12.c).
 run -m .             # Run all supported files in the current directory.
 run -b batch1        # Run commands defined in batch1.
 run --share send ./  # to share a file to local network
+run -a 'argument' 1.py # Gives argument to the program 
 run --share receive  # to recive a file from local neetwork
 ```
 

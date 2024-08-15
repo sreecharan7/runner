@@ -51,7 +51,7 @@ main() {
     else
         eval "${my_dict["${extension}"]}"
     fi
-    run_lang "${file}" "${fwe}"
+    run_lang "${file}" "${fwe}" "${arguments}"
 }
 
 
@@ -63,10 +63,11 @@ fi
 deleteExecutable="false"
 multipleFiles="false" #run multiple files
 comment="main" #comments while executing multiple files
-
-while getopts ":dmtcb:i:h" opt; do
+arguments=""
+while getopts ":dmtcb:i:ha:" opt; do
     case ${opt} in
         d ) deleteExecutable="true" ;;
+        a ) arguments="$OPTARG" ;;
         i )importFunctions "install.sh" "install_packages" "$OPTARG";
             exit ;;
         m ) multipleFiles="true" ;;

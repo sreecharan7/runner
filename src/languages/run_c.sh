@@ -1,10 +1,13 @@
 run_lang(){
     file=$1
     fwe=$2
+    arguments="$3"
     if ! command -v gcc &> /dev/null; then
         importFunctions "install.sh" "install_packages" "gcc"
     fi
-    gcc "$file" -o "${fwe}.out" && "./${fwe}.out" && {
+    gcc "$file" -o "${fwe}.out" && { 
+        "./${fwe}.out" $arguments 
+    } && {
         deleteFile "${fwe}.out"
     }
 }
