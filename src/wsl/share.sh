@@ -20,10 +20,10 @@ start_the_broadcast_in_windows(){
     done <<< "$data"
 
     #script path from perspective of windows
-    script_src=$(wslpath -w "${src}/wsl/broadcastmsgwtn.exe")
+    script_src=$(wslpath -w "${src}/wsl/Runbroadcast.exe")
     #running the broadcsting script in windows in powershell mode and capaturing pid
     perssmision_redirecting_traffic_to_wsl $port
-    echo "This may propmt a window to run the file (press run if asked)."
+    echo "This may prompt a window to run the file (press run if asked)."
     #runnig the broadcast.exe which is exe file broacast.py
     powershell.exe  -Command "Start-Process  -WindowStyle Hidden '${script_src}' -ArgumentList  '\"${ip_data}\"', '\"${port}\"', '\"${name}\"'  -PassThru | Select-Object -ExpandProperty Id" 1>/dev/null
 }
@@ -56,10 +56,10 @@ perssmision_redirecting_traffic_to_wsl(){
 
 start_the_mediator_in_windows(){
     echo "Optimising for WSL..."
-    script_src=$(wslpath -w "${src}/wsl/wawnmediator.exe")
+    script_src=$(wslpath -w "${src}/wsl/Runreceive.exe")
     router_id=$(ip route | grep default | awk '{print $3}')
     broadcast_address=$(ip addr show eth0 | grep 'inet ' | awk '{print $4}' | cut -d'/' -f1)
-    echo "This may propmt a window to run the file (press run if asked)."
+    echo "This may prompt a window to run the file (press run if asked)."
     #runnig the broadcast.exe which is exe file mediator.py
     powershell.exe  -Command "Start-Process  -WindowStyle Hidden  '${script_src}' -ArgumentList  '\"${broadcast_address}\"', '\"${router_id}\"'  -PassThru | Select-Object -ExpandProperty Id" 1>/dev/null
 }
