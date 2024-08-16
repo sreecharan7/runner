@@ -98,7 +98,8 @@ comment(){
 
 if [ "${multipleFiles}" == "true" ]; then
     if [ "$#" != 1 ];then
-        echo "too many argumetns only one needed that is pattren";
+        echo "too many argumetns only one needed that is pattren.
+Once try again removing -m option or use cotation for pattern";
         exit 3
     fi
     cd "$(dirname "${1}")" || exit

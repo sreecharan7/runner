@@ -148,9 +148,9 @@ uninstall_run(){
 }
 
 run_buddle(){
-    check_array_length "2" "$@"
     buudle_src="$(dirname ${src})/bunddle";
     bundle_name=$2;
+    shift 2
     if [[ ! -f "${buudle_src}/${bundle_name}.bunddle.sh" ]];then
         echo "with this name no bunddle found"
         exit 11
