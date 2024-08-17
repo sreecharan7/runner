@@ -51,7 +51,7 @@ def receive_broadcast(port=25642):
             break
         except Exception as e:
             print(f"Error receiving message: {e}")
-            break
+            continue
     
     sock.close()
 

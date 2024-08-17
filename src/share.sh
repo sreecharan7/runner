@@ -3,6 +3,12 @@ send() {
     echo "starting the sending service";
 
     filepath=$(check_path_and_compress "$1");
+    if [ $? -ne 0 ]; then
+        echo "$filepath"
+        echo "File/Folder not found or something went wrong"
+        exit 43
+    fi
+
     if [ ! $? -eq 0  ];then
         echo ${filepath}
     fi
@@ -124,7 +130,7 @@ to know more type \033[1;32mrun --share help\033[0m"
         if ! command -v tar &> /dev/null; then
             importFunctions "install.sh" "install_packages" "tar" 1>/dev/null
         fi
-        tar -czvf /tmp/$(basename "${path}").tar.gz -C "${path}" . 1>/dev/null
+        tar -czvf "/tmp/$(basename "${path}").tar.gz" -C "${path}" . 1>/dev/null
         if [ ! $? -eq 0 ]; then
             echo -e "\033[1;31mUnable to process the folder, please try again\033[0m";
             exit 44
