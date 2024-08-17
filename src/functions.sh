@@ -42,8 +42,7 @@ double_dash_functions(){
         exit
         ;;
      "--cleanup")
-        check_array_length "1" "$@"
-        cleanup
+        cleanup "$@"
         exit
         ;;
      "--addb")
@@ -127,7 +126,13 @@ bundle_comands(){
 }
 
 cleanup(){
-    find . -type f \( -name "*.exe" -o -name "*.out" -o -name "*.o" \) -delete;
+    shift 1
+    shift 1
+    local arguments=$@
+    if [ "$#" == 0 ] ;then
+        arguments='-maxdepth 1'
+    fi
+    find . $arguments -type f \( -name "*.exe" -o -name "*.out" -o -name "*.o" \) -delete;
 }
 
 uninstall_run(){

@@ -21,6 +21,7 @@ More Options:
     --uninstall      Uninstall the command.
     --reinstall      Reinstalls the command.
     --cleanup        Removes all files end with *.exe | *.o | *.out.
+                     Can pass arguments (using -a) to find. It uses find command to search files
     --addb           Add a new batch.
     --editb          Edit an existing batch.
     --listb          List the all bacth
@@ -35,6 +36,7 @@ Examples:
     run -a 'argument' 1.py # Gives argument to the program  
     run -m "[1-9].c$"   # Find and run numbered C files (e.g., 1.c, 12.c).
     run -m .            # Run all supported files in the current directory.
+    run --cleaup -a '-maxdepth 3' # Delete all executable files at a depth of 3 folders.      
     run --share send .  # This will start the broadcasting or sending of 
                           all files in the current directory
 EOF
