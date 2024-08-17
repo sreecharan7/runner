@@ -10,7 +10,7 @@ To install Command Runner, clone the repository and run the installation script:
 ### Linux Installation Steps
 
 ```bash
-sudo apt install git && sudo git clone https://github.com/sreecharan7/runner.git && cd runner && sudo bash install.sh && cd .. && sudo rm -rf runner
+sudo apt install -y git && sudo git clone https://github.com/sreecharan7/runner.git && cd runner && sudo bash install.sh && cd .. && sudo rm -rf runner
 ```
 
 ### Windows Installation Steps
@@ -25,7 +25,7 @@ sudo apt install git && sudo git clone https://github.com/sreecharan7/runner.git
 2. **Install Command Runner**:
    Once WSL is installed , open the WSL terminal ( just type "wsl" in terminal ) and run the following commands:
    ```bash
-   sudo apt install git && sudo git clone https://github.com/sreecharan7/runner.git && cd runner && sudo bash install.sh && cd .. && sudo rm -rf runner
+   sudo apt install -y git && sudo git clone https://github.com/sreecharan7/runner.git && cd runner && sudo bash install.sh && cd .. && sudo rm -rf runner
    ```
 
 This command clones the repository, runs the installation script, and cleans up after installation.
