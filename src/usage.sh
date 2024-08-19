@@ -26,6 +26,7 @@ More Options:
     --editb          Edit an existing batch.
     --listb          List the all bacth
     --deleteb        Delete an existing batch.
+    --installdepend  Installs all the dependencies.
     --share          This  is used for sharing files in same network. 
                      To know more about this, type (run --share help).
 

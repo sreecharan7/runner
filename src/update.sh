@@ -67,3 +67,54 @@ install_run(){
         fi
     done
 }
+
+
+install_dependencies(){
+    echo "installing dependecies...."  
+    declare -a dependencies=(
+        "python3"
+        "curl"
+        "lsof"
+        "tar"
+        "nano"
+        "ipcalc"
+    )
+    
+    for de in "${dependencies[@]}";do
+        if ! command -v ${de} 1>/dev/null;then
+             importFunctions "install.sh" "install_packages" "${de}" 
+        fi
+    done
+
+    if ! command -v ifconfig &> /dev/null; then
+        importFunctions "install.sh" "install_packages" "net-tools"
+    fi
+
+    libraries=("requests" )
+    for lib in "${libraries[@]}"; do
+        install_python_library "$lib"
+    done
+    echo "installed depencies sucessfully..."
+}
+
+install_python_library() {
+    local library=$1
+
+    python3 -c "import $library" 2>/dev/null 1>/dev/null
+    if [ $? -ne 0 ]; then
+        echo "$library is not available. Installing..."
+
+        if ! command -v pip3 &> /dev/null ; then
+            echo "pip3 is not installed. Installing pip3..."
+            sudo apt update
+            sudo apt install -y python3-pip
+        fi
+
+        pip3 install $library
+        if [ $? -eq 0 ]; then
+            echo "$library has been installed successfully."
+        else
+            echo "Failed to install $library."
+        fi
+    fi
+}

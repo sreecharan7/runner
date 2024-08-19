@@ -69,6 +69,11 @@ double_dash_functions(){
         importFunctions "share.sh" "share" "$@";
         exit
         ;;
+     "--installdepend")
+        check_array_length "1" "$@"
+        importFunctions "update.sh" "install_dependencies";
+        exit
+        ;;
         *)
         echo "option is not present as sencondary ($1) refer run --help"
         exit 8

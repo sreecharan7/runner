@@ -177,19 +177,7 @@ receive() {
    
 
     library="requests"
-    python3 -c "import $library" 2>/dev/null 1>/dev/null
-    if [ ! $? -eq 0 ]; then
-        echo "$library is not available. Installing..."
-        if ! command -v pip3 &> /dev/null ; then
-            importFunctions "install.sh" "install_packages" "python3-pip"
-        fi
-        pip install $library
-        if [ $? -eq 0 ]; then
-            echo "$library has been installed successfully."
-        else
-            echo "Failed to install $library."
-        fi
-    fi
+    importFunctions "update.sh" "install_python_library" "requests"
 
     while getopts ":o:i:p:" opt; do
         case ${opt} in
