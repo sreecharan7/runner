@@ -31,7 +31,7 @@ send() {
                     exit 3
                 fi
                 read -sp "Enter the password:-" password  ;;
-            \? ) echo -e "Invalid option: -$OPTARG\nto know more type \033[1;32mrun --share help\033[0m" 1>&2
+            \? ) recommd_command "--share send ${@}";echo -e "Invalid option: -$OPTARG\nto know more type \033[1;32mrun --share help\033[0m" 1>&2
                  exit 3 ;;
             : ) echo "Option -$OPTARG requires an argument." 1>&2
                 exit 3 ;;
@@ -184,9 +184,9 @@ receive() {
             o ) output="$OPTARG" ;;
             i ) ipaddress="$OPTARG" ;;
             p ) port="$OPTARG" ;;
-            \? ) echo -e "Invalid option: -$OPTARG\nto know more type \033[1;32mrun --share help\033[0m" 1>&2
+            \? ) recommd_command "--share receive ${@}";echo -e "Invalid option: -$OPTARG\nto know more type \033[1;32mrun --share help\033[0m" 1>&2
                 exit 3 ;;
-            : ) echo "Option -$OPTARG requires an argument." 1>&2
+            : )  echo "Option -$OPTARG requires an argument." 1>&2
                 exit 3 ;;
         esac
     done
@@ -253,6 +253,7 @@ share() {
     elif [ "$2" == "help" ]; then
         importFunctions "usage.sh" "share_usage";
     else
+        recommd_command "${@}"
         echo -e "\033[0;31mIn share, only 'send' and 'receive' options are available. 
 Please choose one of them.\n
 to know more type \033[1;32mrun --share help\033[0m"

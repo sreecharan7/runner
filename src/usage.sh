@@ -71,14 +71,14 @@ share_usage(){
 Usage: run --share <operation type>
 
 Operation Types:
-  1) share
+  1) send
   2) receive
 
 All options are optional.
 
 run --share send <filepath/folderpath>
 
-Share Options:
+Send Options:
   -p  Specify the password for the sharing file (without this, the password will not be kept and password should have spaces).
   -s  Enter the password after the command is run for secure password entry without displaying it.
   -n  Set the name that receivers will see.

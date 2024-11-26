@@ -1,0 +1,30 @@
+run --share send <f>
+run --share send <f> -p
+run --share send <f> -s
+run --share send <f> -p <p> -n <n>
+run --share send <f> -sn <n>
+run --share send <f> -s -n <n>
+run --share receive 
+run --share receive -o <dest> -i <ip> -p <port>
+run --share receive -i <ip> -p <port>
+run --share receive -o <dest>
+run --share help
+run --help    
+run --version
+run --update
+run --uninstall
+run --reinstall
+run --cleanup 
+run --addb
+run --editb
+run --listb 
+run --deleteb 
+run --installdepend
+run --share
+run -i <packages> 
+run -d <f>
+run -m <p>
+run -c <f>
+run -a <a> <f>
+run -t 
+run -b <b>

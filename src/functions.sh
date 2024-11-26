@@ -75,6 +75,7 @@ double_dash_functions(){
         exit
         ;;
         *)
+        recommd_command "${@}"
         echo "option is not present as sencondary ($1) refer run --help"
         exit 8
         ;;
@@ -241,4 +242,8 @@ list_bundle(){
     echo "These are the bunddles present:-";
     buudle_src="$(dirname ${src})/bunddle";
     ls "${buudle_src}" 2>/dev/null | awk -F '.bunddle.sh' '{print $1}'
+}
+
+recommd_command(){
+    python3  "${src}/scripts/recommond.py" "${src}/commands.txt" "run $*" 2>/dev/null
 }
