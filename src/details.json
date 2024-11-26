@@ -1,5 +1,5 @@
 {
-    "version":"0.8.6",
+    "version":"0.8.7",
     "installCommands":[
         "sudo git clone https://github.com/sreecharan7/runner",
         "cd runner",
