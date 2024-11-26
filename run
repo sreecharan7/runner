@@ -37,6 +37,7 @@ main() {
     local extension="${file##*.}"
     local fwe="${file%.*}"
     if [[ ! -f ${file} ]];then
+        importFunctions "functions.sh"  "recommd_command" "run ${file}"
         echo "file not found: ${file}"
         return
     fi
@@ -75,7 +76,7 @@ while getopts ":dmtcb:i:ha:" opt; do
         b) importFunctions "functions.sh" "run_buddle" "$@"; exit ;;
         h) importFunctions "functions.sh" "double_dash_functions" "--help";exit ;;
         c ) comment="comment";;
-        \? ) echo "Invalid option: $OPTARG  please refer run --help" 1>&2; exit 3 ;;
+        \? ) importFunctions "functions.sh"  "recommd_command" "run ${@}";echo "Invalid option: $OPTARG  please refer run --help" 1>&2; exit 3 ;;
         : ) echo "Option -$OPTARG requires an argument." 1>&2; exit 3 ;;
     esac
 done
