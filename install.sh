@@ -16,7 +16,7 @@ else
         batfile="$(wslpath -w ./src/wsl/run.bat)"
         echo "This may ask for the permission for running as administration mode (press yes if asked)"
         sleep 2
-        /mnt/c/Windows/System32/WindowsPowerShell/v1.0/powershell.exe -Command "& {Start-Process powershell -ArgumentList '-Command \"New-Item -ItemType Directory -Path \\\"${dest}\\\";copy \\\"${batfile}\\\" \\\"${dest}\\\";\"' -Verb RunAs}"
+        /mnt/c/Windows/System32/WindowsPowerShell/v1.0/powershell.exe -Command "& {Start-Process powershell -ArgumentList '-Command \"New-Item -ItemType Directory -Path \\\"${dest}\\\";copy \\\"${batfile}\\\" \\\"${dest}\\\";setx PATH \\\"%PATH%;C:\\Program Files\\runner\\bin\\\"; \"' -Verb RunAs}"
     fi
 fi
 

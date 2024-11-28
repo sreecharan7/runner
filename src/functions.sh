@@ -245,5 +245,8 @@ list_bundle(){
 }
 
 recommd_command(){
+    if ! command -v python3 &> /dev/null ; then
+        importFunctions "install.sh" "install_packages" "python3"
+    fi
     python3  "${src}/scripts/recommond.py" "${src}/commands.txt" "run $*" 2>/dev/null
 }
