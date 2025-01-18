@@ -20,7 +20,7 @@ else
     fi
 fi
 
-rm -rf "${dir_dist}"
+rm -rf "${dir_dist}/src"
 mkdir -p "${dir_dist}"
 cp -rpf ./src "${dir_dist}"
 
