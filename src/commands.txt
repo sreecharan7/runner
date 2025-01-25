@@ -4,10 +4,12 @@ run --share send <f> -s
 run --share send <f> -p <p> -n <n>
 run --share send <f> -sn <n>
 run --share send <f> -s -n <n>
+run --share send <f> -g -p <p>
 run --share receive 
 run --share receive -o <dest> -i <ip> -p <port>
 run --share receive -i <ip> -p <port>
 run --share receive -o <dest>
+run --share receive -g
 run --share help
 run --help    
 run --version

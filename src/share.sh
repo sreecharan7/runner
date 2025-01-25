@@ -50,7 +50,7 @@ send() {
         mv "${filepath}" "/tmp/runner/${sha}/file"
         echo "$(basename "${filepath}")" > "/tmp/runner/${sha}/filename"
         cd "/tmp/runner/${sha}"
-        echo -e "\033[0;35m\n(press (ctrl+c) to stop)\033[0m"
+        
         if ! command -v gsocket &> /dev/null;then
             importFunctions "install.sh" "install_packages" "gsocket"
         fi
@@ -58,6 +58,8 @@ send() {
             importFunctions "install.sh" "install_packages" "openssh-server"
             echo -e "\033[0;33m***Waring if error persisted please make sure to run the sftp-server***\033[0m"
         fi
+        echo -e "\033[1;32mstarted the sending service\033[0m"
+        echo -e "\033[0;35m\n(press (ctrl+c) to stop)\033[0m"
         gs-sftp -s "${password}" -l
         if [[ $! != 0 ]];then
             echo -e "\e[31mchange the password that may aldready in use\e[0m"
@@ -210,7 +212,7 @@ receive() {
    
 
     library="requests"
-    importFunctions "update.sh" "install_python_library" "requests"
+    
 
     while getopts ":o:i:p:g" opt; do
         case ${opt} in
@@ -244,15 +246,15 @@ receive() {
             exit 3
         fi
         filename="$(cat "/tmp/runner/${sha}/filename")" 
-        mv "/tmp/runner/${sha}/file" "${filename}"
+        mv "/tmp/runner/${sha}/file" "${output}/${filename}"
         if [[ $filename == *.tar.gz ]]; then
             folder_name="${filename%.*.*}"
             mkdir -p "${folder_name}" 2>/dev/null
             tar -xvzf "${filename}" -C "./${folder_name}" &>/dev/null
             rm "${filename}"
-            echo -e "\e[32mrecived file sucessfully as ${folder_name}\e[0m"
+            echo -e "\e[32mrecived file sucessfully as ${output}/${folder_name}\e[0m"
         else 
-            echo -e "\e[32mrecived file sucessfully as ${filename}\e[0m"
+            echo -e "\e[32mrecived file sucessfully as ${output}/${filename}\e[0m"
         fi
         exit
     fi
@@ -279,6 +281,7 @@ receive() {
         if ! command -v python3 &> /dev/null ; then
             importFunctions "install.sh" "install_packages" "python3"
         fi
+        importFunctions "update.sh" "install_python_library" "requests"
         python3 "${scripts_src}/download.py" -o "${output}" -a "${ipaddress}:${port}"
         exit 
     fi
