@@ -68,7 +68,7 @@ Command Runner supports the following languages:
 - `--listb`: List the all bacth.
 - `--deleteb`: Delete an existing batch.
 - `--installdepend`:  Installs all the dependencies.
-- `--share`: This  is used for sharing files in same network
+- `--share`: This  is used for sharing files in same network or global network
 
 **Usage:** `run --share <operation type>`
 
@@ -84,11 +84,14 @@ Command Runner supports the following languages:
 - `-p`  Specify the password for the sharing file (if not provided, the password will not be saved).
 - `-s`  Enter the password after the command is run for secure password entry without displaying it.
 - `-n`  Set the name that receivers will see.
+- `-g`  option allows sharing a file or folder globally, eliminating the requirement for devices to be on the same network. 
+
 
 **Receive Options:**
 - `-o`  Specify where the downloaded or received file should be stored (default is the current directory).
 - `-i`  Specify the IP address to receive from.
 - `-p`  Specify the port from which the file is being hosted.
+- `-g`   option enables a global service, allowing you to receive files or folders from anywhere. To access the shared files, you must enter the same password as the sender.
 
 
 ### Examples
@@ -101,8 +104,10 @@ run -m "[1-9].c$"    # Find and run numbered C files (e.g., 1.c, 12.c).
 run -m .             # Run all supported files in the current directory.
 run -b batch1        # Run commands defined in batch1.
 run --share send ./  # to share a file to local network
+run --share send ./ -g -p <password> # to share a file to any network 
 run -a 'argument' 1.py # Gives argument to the program 
-run --share receive  # to recive a file from local neetwork
+run --share receive  # to receive a file from local neetwork
+run --share receive -g # to receive file from any network 
 ```
 
 ## Contributing

@@ -82,12 +82,13 @@ Send Options:
   -p  Specify the password for the sharing file (without this, the password will not be kept and password should have spaces).
   -s  Enter the password after the command is run for secure password entry without displaying it.
   -n  Set the name that receivers will see.
+  -g  option allows sharing a file or folder globally, eliminating the requirement for devices to be on the same network. 
 
 Receive Options:
   -o  Specify where the downloaded or received file should be stored (default is the current directory).
   -i  Specify the IP address to receive from.
   -p  Specify the port from which the file is being hosted.
-
+  -g  option enables a global service, allowing you to receive files or folders from anywhere. To access the shared files, you must enter the same password as the sender.
 Examples:
     run --share send .
     run --share send ./file -p 123
