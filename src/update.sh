@@ -78,6 +78,7 @@ install_dependencies(){
         "tar"
         "nano"
         "ipcalc"
+        "gsocket"
     )
     
     for de in "${dependencies[@]}";do
@@ -88,6 +89,10 @@ install_dependencies(){
 
     if ! command -v ifconfig &> /dev/null; then
         importFunctions "install.sh" "install_packages" "net-tools"
+    fi
+    if ! grep -q "^Subsystem.*sftp" /etc/ssh/sshd_config; then
+            importFunctions "install.sh" "install_packages" "openssh-server"
+            echo -e "\033[0;33m***Waring if error persisted please make sure to run the sftp-server***\033[0m"
     fi
 
     libraries=("requests" )

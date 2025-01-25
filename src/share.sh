@@ -13,16 +13,15 @@ send() {
         echo ${filepath}
     fi
 
-    if ! command -v python3 &> /dev/null ; then
-        importFunctions "install.sh" "install_packages" "python3"
-    fi
+    
 
     password=""
     name=""
+    global=""
 
     shift
 
-    while getopts ":p:n:s" opt; do
+    while getopts ":p:n:sg" opt; do
         case ${opt} in
             p ) password="$OPTARG" ;;
             n ) name="$OPTARG";;
@@ -30,7 +29,8 @@ send() {
                     echo "Error: -s and -p cannot be used together." 1>&2
                     exit 3
                 fi
-                read -sp "Enter the password:-" password  ;;
+                read -sp "Enter the password:-" password;;
+            g )  global="true";;
             \? ) recommd_command "--share send ${@}";echo -e "Invalid option: -$OPTARG\nto know more type \033[1;32mrun --share help\033[0m" 1>&2
                  exit 3 ;;
             : ) echo "Option -$OPTARG requires an argument." 1>&2
@@ -38,6 +38,36 @@ send() {
         esac
     done
     scripts_src="${src}/scripts";
+
+    if [[ "${global}" == "true" ]];then
+        if [[ -z "${password}" ]];then
+            echo -e "\e[31mpassword is required for global option\nuse -p or -s option after filename/foldername\e[0m"
+            echo "to know more run --share help"
+            exit
+        fi
+        sha=$(echo "${password}"| sha256sum | cut -d ' ' -f1 )
+        mkdir -p "/tmp/runner/${sha}" 2>/dev/null
+        mv "${filepath}" "/tmp/runner/${sha}/file"
+        echo "$(basename "${filepath}")" > "/tmp/runner/${sha}/filename"
+        cd "/tmp/runner/${sha}"
+        echo -e "\033[0;35m\n(press (ctrl+c) to stop)\033[0m"
+        if ! command -v gsocket &> /dev/null;then
+            importFunctions "install.sh" "install_packages" "gsocket"
+        fi
+        if ! grep -q "^Subsystem.*sftp" /etc/ssh/sshd_config; then
+            importFunctions "install.sh" "install_packages" "openssh-server"
+            echo -e "\033[0;33m***Waring if error persisted please make sure to run the sftp-server***\033[0m"
+        fi
+        gs-sftp -s "${password}" -l
+        if [[ $! != 0 ]];then
+            echo -e "\e[31mchange the password that may aldready in use\e[0m"
+        fi
+        exit
+    fi
+
+    if ! command -v python3 &> /dev/null ; then
+        importFunctions "install.sh" "install_packages" "python3"
+    fi
     
     python3  "${scripts_src}/filehosting.script.py" "${filepath}" --password ${password}  &
     SERVER_FILE_HOSTING_PID=$!
@@ -130,14 +160,16 @@ to know more type \033[1;32mrun --share help\033[0m"
         if ! command -v tar &> /dev/null; then
             importFunctions "install.sh" "install_packages" "tar" 1>/dev/null
         fi
-        tar -czvf "/tmp/$(basename "${path}").tar.gz" -C "${path}" . 1>/dev/null
+        mkdir -p /tmp/runner 2>/dev/null
+        tar -czvf "/tmp/runner/$(basename "${path}").tar.gz" -C "${path}" . 1>/dev/null
         if [ ! $? -eq 0 ]; then
             echo -e "\033[1;31mUnable to process the folder, please try again\033[0m";
             exit 44
         fi
-        echo "/tmp/$(basename "${path}").tar.gz"
+        echo "/tmp/runner/$(basename "${path}").tar.gz"
     elif [ -f "$path" ]; then
-        echo "$path"
+        cp "$path" "/tmp/runner/$(basename "${path}")" 
+        echo "/tmp/runner/$(basename "${path}")"
     else
         echo "$path does not exist, please provide the path that exist"
         exit 43
@@ -174,22 +206,56 @@ receive() {
     output="."
     ipaddress=""
     port=""
+    global=""
    
 
     library="requests"
     importFunctions "update.sh" "install_python_library" "requests"
 
-    while getopts ":o:i:p:" opt; do
+    while getopts ":o:i:p:g" opt; do
         case ${opt} in
             o ) output="$OPTARG" ;;
             i ) ipaddress="$OPTARG" ;;
             p ) port="$OPTARG" ;;
+            g ) global="true" ;;
             \? ) recommd_command "--share receive ${@}";echo -e "Invalid option: -$OPTARG\nto know more type \033[1;32mrun --share help\033[0m" 1>&2
                 exit 3 ;;
             : )  echo "Option -$OPTARG requires an argument." 1>&2
                 exit 3 ;;
         esac
     done
+    if [[ "${global}" == "true" ]];then
+        read -p "Enter the password: " "password"
+        while [[ -z "${password}" ]];do
+            read -p "Password should not be empty :" "password"
+        done
+        sha="$(echo "${password}"| sha256sum | cut -d ' ' -f1 )-receive"
+        mkdir -p "/tmp/runner/${sha}/" 2>/dev/null
+        if ! command -v gsocket &> /dev/null;then
+            importFunctions "install.sh" "install_packages" "gsocket"
+        fi
+        if ! grep -q "^Subsystem.*sftp" /etc/ssh/sshd_config; then
+            importFunctions "install.sh" "install_packages" "openssh-server"
+            echo -e "\033[0;33m***Waring if error persisted please make sure to run the sftp-server***\033[0m"
+        fi
+        gs-sftp -s ${password} <<< "mget file* /tmp/runner/${sha}/"
+        if [[ $? != 0 ]];then
+            echo -e "\e[31mpassword was wrong or try again\e[0m"
+            exit 3
+        fi
+        filename="$(cat "/tmp/runner/${sha}/filename")" 
+        mv "/tmp/runner/${sha}/file" "${filename}"
+        if [[ $filename == *.tar.gz ]]; then
+            folder_name="${filename%.*.*}"
+            mkdir -p "${folder_name}" 2>/dev/null
+            tar -xvzf "${filename}" -C "./${folder_name}" &>/dev/null
+            rm "${filename}"
+            echo -e "\e[32mrecived file sucessfully as ${folder_name}\e[0m"
+        else 
+            echo -e "\e[32mrecived file sucessfully as ${filename}\e[0m"
+        fi
+        exit
+    fi
 
     if [ ! -d "$output" ] || [ ! -w "$output" ]; then
         echo "Error: $output is either not a directory or not writable." 1>&2
@@ -209,6 +275,9 @@ receive() {
         if ! is_valid_port "${port}"; then
             echo "Port is not valid. It must be an integer between 1 and 65535."
             exit 47
+        fi
+        if ! command -v python3 &> /dev/null ; then
+            importFunctions "install.sh" "install_packages" "python3"
         fi
         python3 "${scripts_src}/download.py" -o "${output}" -a "${ipaddress}:${port}"
         exit 
