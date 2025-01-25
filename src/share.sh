@@ -13,9 +13,7 @@ send() {
         echo ${filepath}
     fi
 
-    if ! command -v python3 &> /dev/null ; then
-        importFunctions "install.sh" "install_packages" "python3"
-    fi
+    
 
     password=""
     name=""
@@ -52,15 +50,23 @@ send() {
         mv "${filepath}" "/tmp/runner/${sha}/file"
         echo "$(basename "${filepath}")" > "/tmp/runner/${sha}/filename"
         cd "/tmp/runner/${sha}"
-        echo "(press (ctrl+c) to stop)"
+        echo -e "\033[0;35m\n(press (ctrl+c) to stop)\033[0m"
         if ! command -v gsocket &> /dev/null;then
             importFunctions "install.sh" "install_packages" "gsocket"
         fi
+        if ! grep -q "^Subsystem.*sftp" /etc/ssh/sshd_config; then
+            importFunctions "install.sh" "install_packages" "openssh-server"
+            echo -e "\033[0;33m***Waring if error persisted please make sure to run the sftp-server***\033[0m"
+        fi
         gs-sftp -s "${password}" -l
         if [[ $! != 0 ]];then
-            echo "\e[31mchange the password that may aldready in use\e[0m"
+            echo -e "\e[31mchange the password that may aldready in use\e[0m"
         fi
         exit
+    fi
+
+    if ! command -v python3 &> /dev/null ; then
+        importFunctions "install.sh" "install_packages" "python3"
     fi
     
     python3  "${scripts_src}/filehosting.script.py" "${filepath}" --password ${password}  &
@@ -228,6 +234,10 @@ receive() {
         if ! command -v gsocket &> /dev/null;then
             importFunctions "install.sh" "install_packages" "gsocket"
         fi
+        if ! grep -q "^Subsystem.*sftp" /etc/ssh/sshd_config; then
+            importFunctions "install.sh" "install_packages" "openssh-server"
+            echo -e "\033[0;33m***Waring if error persisted please make sure to run the sftp-server***\033[0m"
+        fi
         gs-sftp -s ${password} <<< "mget file* /tmp/runner/${sha}/"
         if [[ $? != 0 ]];then
             echo -e "\e[31mpassword was wrong or try again\e[0m"
@@ -265,6 +275,9 @@ receive() {
         if ! is_valid_port "${port}"; then
             echo "Port is not valid. It must be an integer between 1 and 65535."
             exit 47
+        fi
+        if ! command -v python3 &> /dev/null ; then
+            importFunctions "install.sh" "install_packages" "python3"
         fi
         python3 "${scripts_src}/download.py" -o "${output}" -a "${ipaddress}:${port}"
         exit 
