@@ -45,6 +45,7 @@ send() {
             echo "to know more run --share help"
             exit
         fi
+        password=$(echo "${password}"| sha256sum | cut -d ' ' -f1 )
         sha=$(echo "${password}"| sha256sum | cut -d ' ' -f1 )
         mkdir -p "/tmp/runner/${sha}" 2>/dev/null
         mv "${filepath}" "/tmp/runner/${sha}/file"
@@ -158,11 +159,11 @@ to know more type \033[1;32mrun --share help\033[0m"
         exit 42
     fi
     path="$1"
+    mkdir -p /tmp/runner 2>/dev/null
     if [ -d "$path" ]; then
         if ! command -v tar &> /dev/null; then
             importFunctions "install.sh" "install_packages" "tar" 1>/dev/null
         fi
-        mkdir -p /tmp/runner 2>/dev/null
         tar -czvf "/tmp/runner/$(basename "${path}").tar.gz" -C "${path}" . 1>/dev/null
         if [ ! $? -eq 0 ]; then
             echo -e "\033[1;31mUnable to process the folder, please try again\033[0m";
@@ -231,6 +232,7 @@ receive() {
         while [[ -z "${password}" ]];do
             read -p "Password should not be empty :" "password"
         done
+        password=$(echo "${password}"| sha256sum | cut -d ' ' -f1 )
         sha="$(echo "${password}"| sha256sum | cut -d ' ' -f1 )-receive"
         mkdir -p "/tmp/runner/${sha}/" 2>/dev/null
         if ! command -v gsocket &> /dev/null;then
