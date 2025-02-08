@@ -4,7 +4,7 @@ update_run(){
 
     fencth_data
     
-    latest_version=$(echo "$json" | jq -r '.version');
+    latest_version=$(echo "$json" | jq -r ".${developerMode}version");
 
     if [[ ${latest_version} == ${curent_version} ]];then
         echo "you have the latest version"
@@ -32,13 +32,19 @@ fencth_data(){
         importFunctions "install.sh" "install_packages" "jq"
         importFunctions "install.sh" "install_packages" "curl"
     fi
-    curent_version=$(jq -r '.version' "${src}/details.json")
+    developerMode=$(jq -r '.developerMode' "${src}/details.json")
 
-    url=$(jq -r '.url' "${src}/details.json")
+    if [[ "${developerMode}" == "true" ]];then
+        developerMode="developer"
+    else 
+        developerMode=""
+    fi
 
+    curent_version=$(jq -r ".${developerMode}version" "${src}/details.json")
+    
+    url=$(jq -r ".${developerMode}url" "${src}/details.json")
     json=$(curl -s "$url")
-
-
+    
     if [ $? -ne 0 ]; then
         echo "Failed to fetch JSON data from $url"
         exit 1
@@ -46,8 +52,9 @@ fencth_data(){
 }
 
 install_run(){
-    # requires some data from parent funcntion (nedded a variable json)
-    readarray -t array < <(echo "$json" | jq -r '.installCommands[]')
+    # requires some data from parent funcntion (nedded a variable json , developerMode )
+    readarray -t array < <(echo "$json" | jq -r ".${developerMode}installCommands[]")
+
 
     if [ $? -ne 0 ]; then
         echo "Failed to parse JSON data"
@@ -66,6 +73,9 @@ install_run(){
             exit 11
         fi
     done
+    if [[ -n "${developerMode}" ]];then
+        importFunctions "developer.sh" "change_mode" "true"
+    fi
 }
 
 

@@ -98,3 +98,29 @@ Examples:
     run --share receive -i 172.16.55.87 -p 4000
 EOF
 }
+
+developer_agreement(){
+    cat << EOF
+    **** Please read the Terms and Conditions carefully ****
+    
+    1) Loss of data by any means due to this command is not our responsibility.
+    2) By proceeding, you agree to the licensing terms and conditions.
+    3) command crashes or unexpected behavior may occur.
+    4) By continuing, you also agree to accept any future updates to these terms and conditions.
+    
+EOF
+
+}
+
+developer_help(){
+    cat << EOF
+mode:
+    for change in between develop/stable mode
+    --developer mode true #for switching to developer mode
+    --developer mode false #for switching to stable mode
+help:
+    --developer help  # for seeing the usage of developer option 
+
+after switching mode please run --reinstall for nessary changes to happen
+EOF
+}

@@ -19,7 +19,11 @@ double_dash_functions(){
             importFunctions "install.sh" "install_packages" "jq"
         fi
         check_array_length "1" "$@"
-        echo -e "version is $(jq -r '.version' "${src}/details.json")"
+        developerMode=$(jq -r ".developerMode" "${src}/details.json")
+        if [[ "${developerMode}" == "true" ]];then
+             developerMode="developer"
+        fi
+        echo -e "version is $(jq -r ".${developerMode}version" "${src}/details.json")"
         exit
         ;;
      "--help")
@@ -72,6 +76,11 @@ double_dash_functions(){
      "--installdepend")
         check_array_length "1" "$@"
         importFunctions "update.sh" "install_dependencies";
+        exit
+        ;;
+     "--developer")
+        shift 
+        importFunctions "developer.sh" "developer" "$@";
         exit
         ;;
         *)
