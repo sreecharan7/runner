@@ -21,7 +21,8 @@ double_dash_functions(){
         check_array_length "1" "$@"
         developerMode=$(jq -r ".developerMode" "${src}/details.json")
         if [[ "${developerMode}" == "true" ]];then
-             developerMode="developer"
+            developerMode="developer"
+            else developerMode=""
         fi
         echo -e "version is $(jq -r ".${developerMode}version" "${src}/details.json")"
         exit

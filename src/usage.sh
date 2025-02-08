@@ -27,6 +27,7 @@ More Options:
     --listb          List the all bacth
     --deleteb        Delete an existing batch.
     --installdepend  Installs all the dependencies.
+    --developer      To go for developer : please type (run --developer help).
     --share          This  is used for sharing files in same network. 
                      To know more about this, type (run --share help).
 
@@ -40,6 +41,8 @@ Examples:
     run --cleaup -a '-maxdepth 3' # Delete all executable files at a depth of 3 folders.      
     run --share send .  # This will start the broadcasting or sending of 
                           all files in the current directory
+    run --share receive -g # to receive file from any network 
+    run --share send ./ -g -p <password> # to share a file to any network 
 EOF
 }
 

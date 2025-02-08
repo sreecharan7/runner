@@ -68,6 +68,7 @@ Command Runner supports the following languages:
 - `--listb`: List the all bacth.
 - `--deleteb`: Delete an existing batch.
 - `--installdepend`:  Installs all the dependencies.
+- `--developer`: To go for developer mode
 - `--share`: This  is used for sharing files in same network or global network
 
 **Usage:** `run --share <operation type>`
