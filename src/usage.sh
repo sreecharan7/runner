@@ -27,6 +27,7 @@ More Options:
     --listb          List the all bacth
     --deleteb        Delete an existing batch.
     --installdepend  Installs all the dependencies.
+    --developer      To go for developer : please type (run --developer help).
     --share          This  is used for sharing files in same network. 
                      To know more about this, type (run --share help).
 
@@ -40,6 +41,8 @@ Examples:
     run --cleaup -a '-maxdepth 3' # Delete all executable files at a depth of 3 folders.      
     run --share send .  # This will start the broadcasting or sending of 
                           all files in the current directory
+    run --share receive -g # to receive file from any network 
+    run --share send ./ -g -p <password> # to share a file to any network 
 EOF
 }
 
@@ -96,5 +99,31 @@ Examples:
     run --share receive
     run --share receive -o ./destination
     run --share receive -i 172.16.55.87 -p 4000
+EOF
+}
+
+developer_agreement(){
+    cat << EOF
+    **** Please read the Terms and Conditions carefully ****
+    
+    1) Loss of data by any means due to this command is not our responsibility.
+    2) By proceeding, you agree to the licensing terms and conditions.
+    3) command crashes or unexpected behavior may occur.
+    4) By continuing, you also agree to accept any future updates to these terms and conditions.
+    
+EOF
+
+}
+
+developer_help(){
+    cat << EOF
+mode:
+    for change in between develop/stable mode
+    --developer mode true #for switching to developer mode
+    --developer mode false #for switching to stable mode
+help:
+    --developer help  # for seeing the usage of developer option 
+
+after switching mode please run --reinstall for nessary changes to happen
 EOF
 }

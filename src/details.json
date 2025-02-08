@@ -1,11 +1,23 @@
 {
-    "version":"0.9.0",
-    "installCommands":[
-        "sudo git clone https://github.com/sreecharan7/runner",
-        "cd runner",
-        "sudo bash install.sh",
-        "cd ..",
-        "sudo rm -rf runner"
-    ],
-    "url":"https://raw.githubusercontent.com/sreecharan7/runner/main/src/details.json"
+  "version": "0.9.1",
+  "developerversion": "1.0.0-dev",
+  "installCommands": [
+    "sudo git clone https://github.com/sreecharan7/runner",
+    "cd runner",
+    "sudo bash install.sh",
+    "cd ..",
+    "sudo rm -rf runner"
+  ],
+  "developerMode": "false",
+  "developerinstallCommands": [
+    "sudo git clone https://github.com/sreecharan7/runner",
+    "cd runner",
+    "git config --global --add safe.directory \"$(pwd)\" ",
+    "sudo git switch develop",
+    "sudo bash install.sh",
+    "cd ..",
+    "sudo rm -rf runner"
+  ],
+  "developerurl": "https://raw.githubusercontent.com/sreecharan7/runner/refs/heads/develop/src/details.json",
+  "url": "https://raw.githubusercontent.com/sreecharan7/runner/main/src/details.json"
 }

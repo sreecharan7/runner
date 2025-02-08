@@ -30,3 +30,6 @@ run -c <f>
 run -a <a> <f>
 run -t 
 run -b <b>
+run --developer mode true
+run --developer mode false
+run --developer help
