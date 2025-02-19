@@ -4,6 +4,7 @@ mode(){
         recommd_command "--developer mode ${@}"
         echo "please read the documentation of developer mode ";
         echo "type :- run --developer help"
+        exit 26;
     fi
     if [[ "$1" == "${developerMode}" ]];then
         echo "changed sucessfully";exit;
